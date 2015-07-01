@@ -1,0 +1,13 @@
+*.pyc
+__pycache__/
+*.db
+media/*
+README.html
+output.txt
+secret.txt
+
+# OS files
+Desktop.ini
+.DS_Store
+.AppleDouble
+.LSOverride
