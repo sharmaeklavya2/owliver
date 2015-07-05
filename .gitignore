@@ -2,9 +2,11 @@
 __pycache__/
 *.db
 media/*
+*/migrations/*
 README.html
 output.txt
 secret.txt
+myvenv/
 
 # OS files
 Desktop.ini
