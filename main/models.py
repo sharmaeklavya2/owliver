@@ -35,23 +35,23 @@ class SectionAnswerSheetHasInvalidExam(Exception):
 		return "this section_answer_sheet's section belongs to an exam which is not the same as it's exam_answer_sheet's exam"
 
 class Exam(models.Model):
-	name = models.CharField(max_length=50)
+	name = models.CharField(max_length=50,blank=False)
 	info = models.TextField(blank=True)
 	time_limit = models.DurationField("Time limit to complete exam",default=timedelta())
 		# timedelta() means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
 	comment = models.TextField(blank=True)
-	
+
 	def __str__(self):
 		return self.name
 
 class Section(models.Model):
-	name = models.CharField(max_length=50)
+	name = models.CharField(max_length=50,blank=False)
 	info = models.TextField(blank=True)
 	exam = models.ForeignKey(Exam)
 #	sno = models.PositiveIntegerField(default=0)
-	comment = models.TextField()
-	
+	comment = models.TextField(blank=True)
+
 	def __str__(self):
 		return self.exam.name+" : "+self.name
 
@@ -123,13 +123,23 @@ class Question(models.Model):
 class ExamAnswerSheet(models.Model):
 	exam = models.ForeignKey(Exam)
 	user = models.ForeignKey(User)
-	start_time = models.DateTimeField()
-	end_time = models.DateTimeField()
+	start_time = models.DateTimeField(null=True)
+	end_time = models.DateTimeField(null=True)
+
+	def __str__(self):
+		return str(user)+" : "+str(exam)
+	def get_duration(self):
+		if self.start_time==None or self.end_time==None:
+			return None
+		else:
+			return self.end_time - self.start_time
 
 class SectionAnswerSheet(models.Model):
 	# Answer Objects FK to this model
 	section = models.ForeignKey(Section)
 	exam_answer_sheet = models.ForeignKey(ExamAnswerSheet)
+	def __str__(self):
+		return str(section)
 	def save(self,*args,**kwargs):
 		if self.section.exam != self.exam_answer_sheet.exam:
 			raise SectionAnswerSheetHasInvalidExam()

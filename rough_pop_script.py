@@ -11,7 +11,7 @@ myexam.save()
 mysection = Section(name="Sample section", exam=myexam, correct_marks=4, wrong_marks=-1)
 mysection.save()
 
-myeas = ExamAnswerSheet(exam=myexam, user=eklavya, start_time=timezone.now(), end_time=timezone.now())
+myeas = ExamAnswerSheet(exam=myexam, user=eklavya)
 myeas.save()
 mysas = SectionAnswerSheet(section=mysection, exam_answer_sheet=myeas)
 mysas.save()
