@@ -40,7 +40,8 @@ class Exam(models.Model):
 	time_limit = models.DurationField("Time limit to complete exam",default=timedelta())
 		# timedelta() means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
-
+	comment = models.TextField(blank=True)
+	
 	def __str__(self):
 		return self.name
 
@@ -48,7 +49,9 @@ class Section(models.Model):
 	name = models.CharField(max_length=50)
 	info = models.TextField(blank=True)
 	exam = models.ForeignKey(Exam)
-	sno = models.PositiveIntegerField()
+#	sno = models.PositiveIntegerField(default=0)
+	comment = models.TextField()
+	
 	def __str__(self):
 		return self.exam.name+" : "+self.name
 
@@ -113,7 +116,7 @@ class Question(models.Model):
 		return getattr(self,qtype+"question")
 
 	section = models.ForeignKey(Section)
-	sno = models.PositiveIntegerField()
+#	sno = models.PositiveIntegerField(default=0)
 	comment = models.TextField(blank=True)
 	metadata = models.TextField(blank=True)
 
@@ -172,7 +175,7 @@ class McqQuestion(models.Model):
 class McqOption(models.Model):
 	title = models.CharField(max_length=30,blank=True)
 	text = models.TextField(blank=False)
-	sno = models.PositiveIntegerField()
+#	sno = models.PositiveIntegerField(default=0)
 	is_correct = models.BooleanField(default=False)
 	mcq_question = models.ForeignKey(McqQuestion)
 

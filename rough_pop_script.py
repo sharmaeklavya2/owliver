@@ -6,9 +6,9 @@ from django.utils import timezone
 eklavya = User(username="eklavya")
 eklavya.save()
 
-myexam = Exam(name="IITJEE 2015")
+myexam = Exam(name="Sample exam")
 myexam.save()
-mysection = Section(name="Physics", exam=myexam, sno=1, correct_marks=4, wrong_marks=-1)
+mysection = Section(name="Sample section", exam=myexam, correct_marks=4, wrong_marks=-1)
 mysection.save()
 
 myeas = ExamAnswerSheet(exam=myexam, user=eklavya, start_time=timezone.now(), end_time=timezone.now())
@@ -18,9 +18,9 @@ mysas.save()
 
 # MCQ Questions ====================================================================================
 
-ques1 = Question(text="What is the capital of India?", section=mysection, sno=1)
+ques1 = Question(text="What is the capital of India?", section=mysection)
 ques1.save()
-ques2 = Question(text="What is the capital of USA?", section=mysection, sno=2)
+ques2 = Question(text="What is the capital of USA?", section=mysection)
 ques2.save()
 
 mcq1 = McqQuestion(question=ques1, multicorrect=False)
@@ -28,18 +28,18 @@ mcq1.save()
 mcq2 = McqQuestion(question=ques2, multicorrect=False)
 mcq2.save()
 
-opt1a = McqOption(text="Delhi", sno="1", is_correct=True, mcq_question=mcq1)
+opt1a = McqOption(text="Delhi", is_correct=True, mcq_question=mcq1)
 opt1a.save()
-opt1b = McqOption(text="Bombay", sno="2", is_correct=False, mcq_question=mcq1)
+opt1b = McqOption(text="Bombay", is_correct=False, mcq_question=mcq1)
 opt1b.save()
-opt1c = McqOption(text="Kolkata", sno="3", is_correct=False, mcq_question=mcq1)
+opt1c = McqOption(text="Kolkata", is_correct=False, mcq_question=mcq1)
 opt1c.save()
 
-opt2a = McqOption(text="New York", sno="1", is_correct=False, mcq_question=mcq2)
+opt2a = McqOption(text="New York", is_correct=False, mcq_question=mcq2)
 opt2a.save()
-opt2b = McqOption(text="Washington DC", sno="2", is_correct=True, mcq_question=mcq2)
+opt2b = McqOption(text="Washington DC", is_correct=True, mcq_question=mcq2)
 opt2b.save()
-opt2c = McqOption(text="Florida", sno="3", is_correct=False, mcq_question=mcq2)
+opt2c = McqOption(text="Florida", is_correct=False, mcq_question=mcq2)
 opt2c.save()
 
 ans1 = Answer(section_answer_sheet=mysas)
@@ -57,9 +57,9 @@ McqAnswerToMcqOption(mcq_answer=mcqans2, mcq_option=opt2a).save()
 
 # Subj Questions ===================================================================================
 
-ques3 = Question(text="Who is India's Prime Minister?", section=mysection, sno=1)
+ques3 = Question(text="Who is India's Prime Minister?", section=mysection)
 ques3.save()
-ques4 = Question(text="What is the chemical formula of water?", section=mysection, sno=2)
+ques4 = Question(text="What is the chemical formula of water?", section=mysection)
 ques4.save()
 
 textq1 = TextQuestion(question=ques3, correct_answer_re="Narendra Modi")
