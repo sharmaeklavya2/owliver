@@ -1,0 +1,108 @@
+{
+	"name": "Example GK questions",
+	"comment": "Questions taken from http://importantquestionsabout.blogspot.in/2013/02/gk-questions-and-answers-for-kids.html",
+	"sections":
+	[
+		{
+			"name": "Animals",
+			"questions":
+			[
+				{
+					"text": "Which is the largest animal in the world?",
+					"type": "mcq",
+					"correct_options": ["Blue Whale"],
+					"wrong_options": ["Elephant", "Giraffe", "Lion"]
+				},
+				{
+					"title":"Largest land animal",
+					"text": "Which is the largest animal on land?",
+					"type": "mcq",
+					"options":
+					[
+						{"text": "Polar Bear"},
+						{"text": "Lion"},
+						{"text": "Elephant", "is_correct":true}, 
+						{"text": "Giraffe"} 
+					]
+				},
+				{
+					"text": "Which is the smallest bird?",
+					"type": "text",
+					"ignore_case": true,
+					"correct_answer": "hummingbird"
+				},
+				{
+					"title": "Largest fish",
+					"text": "Which is the largest fish in the world?",
+					"type": "mcq",
+					"ignore_case": true,
+					"options":
+					[
+						"Whale",
+						"Great White Shark",
+						{"text":"Whale Shark","is_correct":true},
+						"Walrus"
+					]
+				},
+				{
+					"title": "Tallest land animal",
+					"text": "Which is the tallest animal on land?",
+					"type": "mcq",
+					"options":
+					[
+						"Polar Bear",
+						"Lion",
+						"Elephant",
+						{"text": "Giraffe", "is_correct":true}
+					]
+				},
+				{
+					"title": "Biggest bird",
+					"text": "Which is the biggest bird in the world?",
+					"type": "text",
+					"ignore_case": true,
+					"answer": "ostrich"
+				}
+			]
+		},
+
+		{
+			"name": "Geography",
+			"questions":
+			[
+				{
+					"text": "Which is the biggest continent in the world?",
+					"type": "text",
+					"ignore_case": false,
+					"answer": "Asia"
+				},
+				{
+					"text": "Which is the largest country (by area) in the world?",
+					"type": "text",
+					"answer": "Russia"
+				},
+				{
+					"text": "Which is the longest river in the world?",
+					"type": "text",
+					"answer": "Nile"
+				},
+				{
+					"text": "Which is the largest ocean in the world?",
+					"type": "text",
+					"answer": "Pacific( [Oo]cean)?"
+				},
+				{
+					"text": "Which is the largest desert in the world?",
+					"type": "mcq",
+					"options":
+					[
+						{"text": "Sahara Desert", "is_correct":true},
+						"Atacama Desert",
+						"Thar Desert",
+						"The Grand Canyons"
+					]
+				}
+			]
+		}
+	]
+}
