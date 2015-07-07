@@ -1,0 +1,11 @@
+{
+	"text": "Which is the largest desert in the world?",
+	"type": "mcq",
+	"options":
+	[
+		{"text": "Sahara Desert", "is_correct":true},
+		"Atacama Desert",
+		"Thar Desert",
+		"The Grand Canyons"
+	]
+}

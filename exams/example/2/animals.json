@@ -1,0 +1,62 @@
+{
+	"name": "Animals",
+	"questions":
+	[
+		{
+			"text": "Which is the largest animal in the world?",
+			"type": "mcq",
+			"correct_options": ["Blue Whale"],
+			"wrong_options": ["Elephant", "Giraffe", "Lion"]
+		},
+		{
+			"title":"Largest land animal",
+			"text": "Which is the largest animal on land?",
+			"type": "mcq",
+			"options":
+			[
+				{"text": "Polar Bear"},
+				{"text": "Lion"},
+				{"text": "Elephant", "is_correct":true}, 
+				{"text": "Giraffe"} 
+			]
+		},
+		{
+			"text": "Which is the smallest bird?",
+			"type": "text",
+			"ignore_case": true,
+			"correct_answer": "hummingbird"
+		},
+		{
+			"title": "Largest fish",
+			"text": "Which is the largest fish in the world?",
+			"type": "mcq",
+			"ignore_case": true,
+			"options":
+			[
+				"Whale",
+				"Great White Shark",
+				{"text":"Whale Shark","is_correct":true},
+				"Walrus"
+			]
+		},
+		{
+			"title": "Tallest land animal",
+			"text": "Which is the tallest animal on land?",
+			"type": "mcq",
+			"options":
+			[
+				"Polar Bear",
+				"Lion",
+				"Elephant",
+				{"text": "Giraffe", "is_correct":true}
+			]
+		},
+		{
+			"title": "Biggest bird",
+			"text": "Which is the biggest bird in the world?",
+			"type": "text",
+			"ignore_case": true,
+			"answer": "ostrich"
+		}
+	]
+}

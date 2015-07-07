@@ -10,6 +10,7 @@ QUESTION_TYPE_DICT = {
 #	"mmcq": "Multiple-correct MCQ",
 	"text": "Text based subjective",
 #	"int": "Integer",
+#	"float": "Real number"
 #	"match": "Match the following",
 #	"mmatch": "Matrix match",
 #	"order": "Arrange in order",

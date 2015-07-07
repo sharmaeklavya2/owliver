@@ -1,0 +1,69 @@
+{
+	"pointer":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"title":"pointer",
+		"type":"string",
+		"pattern":"^file\\: *([^\\0]+\\.json)$"
+	},
+
+	"question":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"title":"question",
+		"type":"object"
+	},
+
+	"section":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"title":"section",
+		"type":"object",
+		"properties":
+		{
+			"name":{"type":"string"},
+			"info":{"type":"string"},
+			"comment":{"type":"string"},
+			"questions":
+			{
+				"type":"array",
+				"items":
+				{
+					"anyOf":
+					[
+						{"$ref":"#/pointer"},
+						{"$ref":"#/question"}
+					]
+				}
+			}
+		},
+		"required":["name"]
+	},
+
+	"exam":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"title":"exam",
+		"type":"object",
+		"properties":
+		{
+			"name":{"type":"string"},
+			"info":{"type":"string"},
+			"comment":{"type":"string"},
+			"sections":
+			{
+				"type":"array",
+				"items":
+				{
+					"anyOf":
+					[
+						{"$ref":"#/pointer"},
+						{"$ref":"#/section"}
+					]
+				}
+			}
+		},
+		"required":["name","sections"]
+	},
+	
+}

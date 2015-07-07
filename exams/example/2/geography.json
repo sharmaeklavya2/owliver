@@ -1,0 +1,28 @@
+{
+	"name": "Geography",
+	"questions":
+	[
+		{
+			"text": "Which is the biggest continent in the world?",
+			"type": "text",
+			"ignore_case": false,
+			"answer": "Asia"
+		},
+		{
+			"text": "Which is the largest country (by area) in the world?",
+			"type": "text",
+			"answer": "Russia"
+		},
+		{
+			"text": "Which is the longest river in the world?",
+			"type": "text",
+			"answer": "Nile"
+		},
+		{
+			"text": "Which is the largest ocean in the world?",
+			"type": "text",
+			"answer": "Pacific( [Oo]cean)?"
+		},
+		"file: desert_question.json"
+	]
+}

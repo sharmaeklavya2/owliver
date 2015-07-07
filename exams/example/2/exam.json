@@ -1,0 +1,9 @@
+{
+	"name": "Example GK questions",
+	"comment": "Questions taken from http://importantquestionsabout.blogspot.in/2013/02/gk-questions-and-answers-for-kids.html",
+	"sections":
+	[
+		"file:animals.json",
+		"file:geography.json"
+	]
+}

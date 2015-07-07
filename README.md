@@ -24,5 +24,5 @@ Now you must follow these steps:
 If your default `python` points to a python 2.x installation, or you are using a virtualenv, you might need to replace `python` in the above commands by whatever python 3 installation you are using.
 On most Debian-based systems, `python3` points to the default python 3 installation.
 
-## Contributing
-If you wish to contribute, fork, edit and send a pull request. If you know me personally, I would suggest that you contact me before contributing. I mainly need help with frontend since that is my weakness.
+## Unresolvable Issues
+There is a bug in `jsonschema` because of which it does not load nested `$ref`s to external files (https://github.com/Julian/jsonschema/issues/209). Because of this bug, I had to make a single schema file.
