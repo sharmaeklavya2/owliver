@@ -17,6 +17,10 @@ QUESTION_TYPE_DICT = {
 #	"bool": "True or False",
 }
 
+# Extra question types:
+# mmcq is mcq with multicorrect=True
+# regex is text with use_regex=True
+ 
 QUESTION_TYPE = list(QUESTION_TYPE_DICT.items())
 
 class InvalidOptionsForQuestion(Exception):
@@ -252,8 +256,9 @@ class McqAnswerToMcqOption(models.Model):
 class TextQuestion(models.Model):
 	question = models.OneToOneField(Question)
 	ignore_case = models.BooleanField(default=False)
-	correct_answer_re = models.TextField(blank=False)
-
+	use_regex = models.BooleanField(default=False)
+	correct_answer = models.TextField(blank=False)
+	
 	def get_qtype(self):
 		return "text"
 	def get_section(self):
@@ -261,9 +266,15 @@ class TextQuestion(models.Model):
 	def __str__(self):
 		return str(self.question)
 	def check_response(self,response):
-		if self.ignore_case: flags=0
-		else: flags=re.IGNORECASE
-		return bool(re.fullmatch(self.correct_answer_re,response,flags))
+		if self.use_regex:
+			if self.ignore_case: flags=0
+			else: flags=re.IGNORECASE
+			return bool(re.fullmatch(self.correct_answer,response,flags))
+		else:
+			if self.ignore_case:
+				return response.lower()==self.correct_answer.lower()
+			else:
+				return response==self.correct_answer
 
 class TextAnswer(models.Model):
 	answer = models.OneToOneField(Answer)

@@ -1,3 +1,5 @@
+# Rough population script
+
 from main.models import *
 from django.contrib.auth.models import User
 import datetime
@@ -55,16 +57,16 @@ mcqans2.save()
 McqAnswerToMcqOption(mcq_answer=mcqans1, mcq_option=opt1a).save()
 McqAnswerToMcqOption(mcq_answer=mcqans2, mcq_option=opt2a).save()
 
-# Subj Questions ===================================================================================
+# Text Questions ===================================================================================
 
 ques3 = Question(text="Who is India's Prime Minister?", section=mysection)
 ques3.save()
 ques4 = Question(text="What is the chemical formula of water?", section=mysection)
 ques4.save()
 
-textq1 = TextQuestion(question=ques3, correct_answer_re="Narendra Modi")
+textq1 = TextQuestion(question=ques3, correct_answer="Narendra Modi")
 textq1.save()
-textq2 = TextQuestion(question=ques4, correct_answer_re="H2O")
+textq2 = TextQuestion(question=ques4, correct_answer="H2O")
 textq2.save()
 
 ans3 = Answer(section_answer_sheet=mysas)
