@@ -1,14 +1,16 @@
 *.pyc
 __pycache__/
 *.db
-media/*
+/media/*
 */migrations/*
 README.html
 output.txt
+/TODO.txt
 secret.txt
 myvenv/
 
 # OS files
+*~
 Desktop.ini
 .DS_Store
 .AppleDouble
