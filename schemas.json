@@ -1,15 +1,15 @@
 {
+	"always_mismatch":{"not":{}},
+
 	"pointer":
 	{
-		"$schema": "http://json-schema.org/schema#",
 		"title":"pointer",
 		"type":"string",
 		"pattern":"^file\\: *([^\\0]+\\.json)$"
 	},
-	
+
 	"mcq_option":
 	{
-		"$schema": "http://json-schema.org/schema#",
 		"oneOf":
 		[
 			{"type":"string"},
@@ -24,14 +24,80 @@
 			}
 		]
 	},
-	
+
 	"mcq_options_list":
 	{
-		"$schema": "http://json-schema.org/schema#",
 		"type":"array",
 		"items":{"$ref":"#/mcq_option"}
 	},
-	
+
+	"mcq_question":
+	{
+		"properties":
+		{
+			"type":{"enum":["mcq","mmcq"]},
+			"correct_options":{"$ref":"#/mcq_options_list"},
+			"options":{"$ref":"#/mcq_options_list"},
+			"wrong_options":{"$ref":"#/mcq_options_list"},
+			"multicorrect":{"type":"boolean"}
+		},
+		"oneOf":
+		[
+			{"required":["options"]},
+			{"required":["correct_options"]}
+		]
+	},
+
+	"text_question":
+	{
+		"properties":
+		{
+			"type":{"enum":["text","regex"]},
+			"answer":{"type":"string"},
+			"ignore_case":{"type":"boolean"},
+			"use_regex":{"type":"boolean"}
+		},
+		"required":["answer"]
+	},
+
+	"int_question":
+	{
+		"properties":
+		{
+			"type":{"enum":["int"]},
+			"answer":{"type":"integer"},
+			"min_answer":{"type":"integer"},
+			"max_answer":{"type":"integer"},
+			"modulo":{"type":"integer"}
+		},
+		"oneOf":
+		[
+			{"required":["answer"]},
+			{"required":["min_answer","max_answer"]}
+		]
+	},
+
+	"float_question":
+	{
+		"properties":
+		{
+			"type":{"enum":["float"]},
+			"answer":{"type":"number"},
+			"accuracy":{"type":"number"}
+		},
+		"required":["answer"]
+	},
+
+	"bool_question":
+	{
+		"properties":
+		{
+			"type":{"enum":["bool"]},
+			"answer":{"type":"boolean"}
+		},
+		"required":["answer"]
+	},
+
 	"question":
 	{
 		"$schema": "http://json-schema.org/schema#",
@@ -43,31 +109,23 @@
 			"text":{"type":"string"},
 			"hint":{"type":"string"},
 			"comment":{"type":"string"},
-			"type":{"type":"string"},
-
-			"options":{"$ref":"#/mcq_options_list"},
-			"correct_options":{"$ref":"#/mcq_options_list"},
-			"wrong_options":{"$ref":"#/mcq_options_list"},
-			"multicorrect":{"type":"boolean"},
-			
-			"answer":{},
-			"ignore_case":{"type":"boolean"},
-			"use_regex":{"type":"boolean"},
-			
-			"min_answer":{"type":"integer"},
-			"max_answer":{"type":"integer"},
-			"modulo":{"type":"integer"},
-			"accuracy":{"type":"number"}
+			"type":{"type":"string"}
 		},
-		"dependencies":
-		{
-			"wrong_options":["correct_options"],
-			"ignore_case":["answer"],
-			"use_regex":["answer"],
-			"min_answer":["max_answer"],
-			"max_answer":["min_answer"],
-			"accuracy":["answer"]
-		}
+		"required":["type"],
+		"oneOf":
+		[
+			{"$ref":"#/mcq_question"},
+			{"$ref":"#/text_question"},
+			{"$ref":"#/int_question"},
+			{"$ref":"#/float_question"},
+			{"$ref":"#/bool_question"},
+			{
+				"properties":
+				{
+					"type":{"not":{"enum":["mcq","mmcq","text","regex","int","float","bool"]}}
+				}
+			}
+		]
 	},
 
 	"section":
@@ -120,6 +178,7 @@
 			}
 		},
 		"required":["name","sections"]
-	}
-	
+	},
+
+	"$ref":"#/always_mismatch"
 }
