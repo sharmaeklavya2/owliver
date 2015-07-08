@@ -6,12 +6,60 @@
 		"type":"string",
 		"pattern":"^file\\: *([^\\0]+\\.json)$"
 	},
-
+	
+	"mcq_option":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"oneOf":
+		[
+			{"type":"string"},
+			{
+				"type":"object",
+				"properties":
+				{
+					"title":{"type":"string"},
+					"is_correct":{"type":"boolean"}
+				},
+				"required":["text"]
+			}
+		]
+	},
+	
+	"mcq_options_list":
+	{
+		"$schema": "http://json-schema.org/schema#",
+		"type":"array",
+		"items":{"$ref":"#/mcq_option"}
+	},
+	
 	"question":
 	{
 		"$schema": "http://json-schema.org/schema#",
 		"title":"question",
-		"type":"object"
+		"type":"object",
+		"properties":
+		{
+			"title":{"type":"string"},
+			"text":{"type":"string"},
+			"hint":{"type":"string"},
+			"comment":{"type":"string"},
+			"type":{"type":"string"},
+
+			"options":{"$ref":"#/mcq_options_list"},
+			"correct_options":{"$ref":"#/mcq_options_list"},
+			"wrong_options":{"$ref":"#/mcq_options_list"},
+			"multicorrect":{"type":"boolean"},
+			
+			"correct_answer":{},
+			"answer":{},
+			"ignore_case":{"type":"boolean"},
+			"use_regex":{"type":"boolean"},
+			
+			"minanswer":{"type":"integer"},
+			"maxanswer":{"type":"integer"},
+			"modulo":{"type":"integer"},
+			"accuracy":{"type":"number"}
+		}
 	},
 
 	"section":
@@ -64,6 +112,6 @@
 			}
 		},
 		"required":["name","sections"]
-	},
+	}
 	
 }

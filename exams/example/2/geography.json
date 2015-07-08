@@ -20,7 +20,7 @@
 		},
 		{
 			"text": "Which is the largest ocean in the world?",
-			"type": "text",
+			"type": "regex",
 			"answer": "Pacific( [Oo]cean)?"
 		},
 		"file: desert_question.json"
