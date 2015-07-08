@@ -7,7 +7,6 @@ import re
 
 QUESTION_TYPE_DICT = {
 	"mcq": "Single-correct MCQ",
-#	"mmcq": "Multiple-correct MCQ",
 	"text": "Text based subjective",
 #	"int": "Integer",
 #	"float": "Real number"
@@ -289,4 +288,8 @@ class TextAnswer(models.Model):
 		return self.text_question.get_qtype()
 	def __str__(self):
 		return self.response
+	def save(self,*args,**kwargs):
+		if self.answer.section_answer_sheet.section != self.get_section():
+			raise AnswerHasInvalidSection()
+		super().save(*args,**kwargs)
 
