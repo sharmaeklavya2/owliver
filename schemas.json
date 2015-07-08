@@ -50,15 +50,23 @@
 			"wrong_options":{"$ref":"#/mcq_options_list"},
 			"multicorrect":{"type":"boolean"},
 			
-			"correct_answer":{},
 			"answer":{},
 			"ignore_case":{"type":"boolean"},
 			"use_regex":{"type":"boolean"},
 			
-			"minanswer":{"type":"integer"},
-			"maxanswer":{"type":"integer"},
+			"min_answer":{"type":"integer"},
+			"max_answer":{"type":"integer"},
 			"modulo":{"type":"integer"},
 			"accuracy":{"type":"number"}
+		},
+		"dependencies":
+		{
+			"wrong_options":["correct_options"],
+			"ignore_case":["answer"],
+			"use_regex":["answer"],
+			"min_answer":["max_answer"],
+			"max_answer":["min_answer"],
+			"accuracy":["answer"]
 		}
 	},
 

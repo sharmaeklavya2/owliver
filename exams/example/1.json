@@ -29,13 +29,12 @@
 					"text": "Which is the smallest bird?",
 					"type": "text",
 					"ignore_case": true,
-					"correct_answer": "hummingbird"
+					"answer": "hummingbird"
 				},
 				{
 					"title": "Largest fish",
 					"text": "Which is the largest fish in the world?",
 					"type": "mcq",
-					"ignore_case": true,
 					"options":
 					[
 						"Whale",
