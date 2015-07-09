@@ -28,7 +28,8 @@
 	"mcq_options_list":
 	{
 		"type":"array",
-		"items":{"$ref":"#/mcq_option"}
+		"items":{"$ref":"#/mcq_option"},
+		"minItems":1
 	},
 
 	"mcq_question":
@@ -65,16 +66,20 @@
 		"properties":
 		{
 			"type":{"enum":["int"]},
+			"min_allowed":{"type":"integer"},
+			"max_allowed":{"type":"integer"},
 			"answer":{"type":"integer"},
 			"min_answer":{"type":"integer"},
 			"max_answer":{"type":"integer"},
-			"modulo":{"type":"integer"}
+			"step":{"type":"integer"}
 		},
 		"oneOf":
 		[
 			{"required":["answer"]},
 			{"required":["min_answer","max_answer"]}
-		]
+		],
+		"dependencies":
+		{"step":["min_answer"]}
 	},
 
 	"float_question":

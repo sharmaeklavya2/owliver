@@ -2,5 +2,5 @@
 	"type":"float",
 	"text":"What is the value of pi correct upto 4 significant figures?",
 	"answer":3.141592654,
-	"accuracy":0.0001
+	"accuracy":0.001
 }

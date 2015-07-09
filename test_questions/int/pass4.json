@@ -1,7 +1,7 @@
 {
-	"type":"Write a number which is not a multiple of 6.",
+	"type":"Write a multiple of 13 which lies between 100 and 150",
 	"type":"int",
-	"modulo":6,
-	"min_answer":1,
-	"max_answer":5
+	"min_answer":104,
+	"max_answer":150,
+	"step":13
 }

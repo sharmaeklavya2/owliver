@@ -4,6 +4,6 @@
 	"min_allowed":0,
 	"max_allowed":99,
 	"min_answer":14,
-	"max_answer":99,
-	"step":15
+	"step":15,
+	"comment":"Fail because there is no max_answer while min_answer is present"
 }

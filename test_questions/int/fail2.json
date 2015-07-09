@@ -1,0 +1,8 @@
+{
+	"text":"A 2-digit natural number is divisible by 9, but it's digit sum is not 9. What is that number?",
+	"type":"int",
+	"min_answer":0,
+	"max_answer":99,
+	"answer":99,
+	"comment":"Question setter wrote min_answer instead of min_allowed."
+}
