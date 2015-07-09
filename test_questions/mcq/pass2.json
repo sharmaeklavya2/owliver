@@ -1,0 +1,14 @@
+{
+	"title":"TJ characters",
+	"text":"Which of these characters belongs to the cartoon \"Tom and Jerry\"?",
+	"type":"mmcq",
+	"options":
+	[
+		"Droopy",
+		{"text":"Butch","is_correct":true},
+		{"text":"Jerry","is_correct":true},
+		"Tweety",
+		{"text":"Tom","is_correct":true},
+		"Daffy"
+	]
+}

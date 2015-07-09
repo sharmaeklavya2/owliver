@@ -1,0 +1,7 @@
+{
+	"type":"Write a number which is not a multiple of 6.",
+	"type":"int",
+	"modulo":6,
+	"min_answer":1,
+	"max_answer":5
+}

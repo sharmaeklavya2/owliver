@@ -1,0 +1,6 @@
+{
+	"text":"What is the SI unit of mass?",
+	"type":"text",
+	"use_regex":true,
+	"answer":"([Kk]ilogram)|(kg)"
+}

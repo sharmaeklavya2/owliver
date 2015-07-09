@@ -1,0 +1,7 @@
+{
+	"title":"TJ characters",
+	"text":"Which of these characters belongs to the cartoon \"Tom and Jerry\"?",
+	"type":"mmcq",
+	"correct_options":["Tom","Jerry","Butch"],
+	"wrong_options":["Tweety","Droopy","Daffy"]
+}

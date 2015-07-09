@@ -1,0 +1,6 @@
+{
+	"text":"Write a 3 digit number greater than 989.",
+	"type":"int",
+	"min_answer":990,
+	"max_answer":999
+}

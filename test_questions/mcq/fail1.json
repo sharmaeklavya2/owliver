@@ -1,0 +1,12 @@
+{
+	"text":"What does the fox say?",
+	"type":"mcq",
+	"options":
+	[
+		"ting-ding-ding-ding-ding-diding-diding",
+		"wha-pa-pa-pa-pa-pa-pow",
+		"hatee-hatee-ho",
+		"aheeahe-a-he aheeahe-a-he"
+	],
+	"comment":"Should fail because no option is correct"
+}

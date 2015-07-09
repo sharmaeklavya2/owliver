@@ -1,0 +1,6 @@
+{
+	"text":"On dividing n by 3, the remainder is 2. On dividing n by 5, the remainder is 4. What is n?",
+	"type":"int",
+	"modulo":15,
+	"answer":14
+}
