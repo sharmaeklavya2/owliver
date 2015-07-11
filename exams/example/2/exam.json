@@ -4,6 +4,13 @@
 	"sections":
 	[
 		"file:animals.json",
-		"file:geography.json"
+		"file:geography.json",
+		{
+			"name":"Science",
+			"questions":
+			[
+				"file: desert_question.json"
+			]
+		}
 	]
 }
