@@ -60,10 +60,10 @@ class Section(models.Model):
 		return self.exam.name+" : "+self.name
 
 	# marking scheme
-	correct_marks = models.PositiveIntegerField("Marks for correct answer",default=1)
-	wrong_marks = models.PositiveIntegerField("Marks for wrong answer",default=0)
-	na_marks = models.PositiveIntegerField("Marks for not attempting question",default=0)
-	hint_deduction = models.PositiveIntegerField("Marks deducted for viewing hint",default=0)
+	correct_marks = models.IntegerField("Marks for correct answer",default=1)
+	wrong_marks = models.IntegerField("Marks for wrong answer",default=0)
+	na_marks = models.IntegerField("Marks for not attempting question",default=0)
+	hint_deduction = models.IntegerField("Marks deducted for viewing hint",default=0)
 
 # These options will be used if question customization is off
 #	# max option (0 to allow all)
@@ -74,7 +74,7 @@ class Section(models.Model):
 #	max_order_options = models.PositiveIntegerField("Max options allowed in an ordering question",default=0)
 
 	# unlock
-	unlock_marks = models.PositiveIntegerField("Minimum marks to attempt this section",default=0)
+	unlock_marks = models.IntegerField("Minimum marks to attempt this section",default=0)
 	unlock_questions = models.PositiveIntegerField("Minimum attempted questions to attempt this section",default=0)
 	unlock_both_needed = models.BooleanField("Should both minimum question and minimum marks requirements be fulfilled?",default=False)
 	def is_unlocked(self,marks,questions):
