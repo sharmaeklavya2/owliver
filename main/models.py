@@ -175,12 +175,30 @@ class Answer(models.Model):
 class McqQuestion(models.Model):
 	question = models.OneToOneField(Question)
 	multicorrect = models.BooleanField(default=False)
+
 	def get_qtype(self):
 		return "mcq"
 	def get_section(self):
 		return self.question.section
 	def __str__(self):
 		return str(self.question)
+	def no_of_correct_options(self):
+		return self.mcqoption_set.filter(is_correct=True).count()
+
+	class NoCorrectOption(Exception):
+		def __str__(self):
+			return "There is no correct option for this mcq"
+	class TooManyCorrectOptions(Exception):
+		def __str__(self):
+			return "multicorrect is False, yet there are multiple correct options for this mcq"
+
+	def verify_correct_options(self):
+		# raises an exception if the number of correct options is wrong
+		correct_options = self.no_of_correct_options()
+		if correct_options == 0:
+			raise McqQuestion.NoCorrectOption()
+		elif self.multicorrect==False and correct_options>1:
+			raise McqQuestion.TooManyCorrectOptions()
 
 class McqOption(models.Model):
 	title = models.CharField(max_length=30,blank=True)

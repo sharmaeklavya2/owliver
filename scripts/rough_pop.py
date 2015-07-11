@@ -43,8 +43,11 @@ opt2a = McqOption(text="New York", is_correct=False, mcq_question=mcq2)
 opt2a.save()
 opt2b = McqOption(text="Washington DC", is_correct=True, mcq_question=mcq2)
 opt2b.save()
-opt2c = McqOption(text="Florida", is_correct=False, mcq_question=mcq2)
+opt2c = McqOption(text="Florida", is_correct=True, mcq_question=mcq2)
 opt2c.save()
+
+mcq1.verify_correct_options()
+mcq2.verify_correct_options()
 
 ans1 = Answer(section_answer_sheet=mysas)
 ans1.save()
