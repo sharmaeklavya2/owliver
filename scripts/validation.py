@@ -76,7 +76,7 @@ def validate_all_test_questions(root=DEFAULT_TEST_QUESTIONS_DIR):
 				marker = " *"
 				if result==_PASS:
 					if filename.startswith("pass"): marker=""
-					print("_PASS: "+relpath+marker)
+					print("PASS: "+relpath+marker)
 				else:
 					if filename.startswith("fail"): marker=""
 					if result==_FAIL_SCHEMA:
