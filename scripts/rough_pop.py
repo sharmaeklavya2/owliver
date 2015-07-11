@@ -5,9 +5,11 @@ from django.contrib.auth.models import User
 import datetime
 from django.utils import timezone
 
+User.objects.all().delete()
 eklavya = User(username="eklavya")
 eklavya.save()
 
+Exam.objects.all().delete()
 myexam = Exam(name="Sample exam")
 myexam.save()
 mysection = Section(name="Sample section", exam=myexam, correct_marks=4, wrong_marks=-1)

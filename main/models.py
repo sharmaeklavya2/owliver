@@ -147,7 +147,8 @@ class SectionAnswerSheet(models.Model):
 	def save(self,*args,**kwargs):
 		if self.section.exam != self.exam_answer_sheet.exam:
 			raise SectionAnswerSheetHasInvalidExam()
-		super().save(*args,**kwargs)
+#		super().save(*args,**kwargs)
+		super(SectionAnswerSheet,self).save(*args,**kwargs)
 
 class Answer(models.Model):
 	section_answer_sheet = models.ForeignKey(SectionAnswerSheet)
@@ -168,11 +169,6 @@ class Answer(models.Model):
 		return self.get_child_answer().get_section()
 	def __str__(self):
 		return self.get_qtype()+" : "+str(self.get_child_answer())
-
-#	def save(self,*args,**kwargs):
-#		if self.section_answer_sheet.section != self.get_section():
-#			raise AnswerHasInvalidSection()
-#		super().save(*args,**kwargs)
 
 # MCQ questions ====================================================================================
 
@@ -200,16 +196,6 @@ class McqOption(models.Model):
 	def __str__(self):
 		return str(self.mcq_question) + " : " + self.option_text()
 
-#class DummyClassWhichContainsOptions(models.Model):
-#	mcq_options = models.ManyToManyField(McqOption)
-#	mcq_question = models.ForeignKey(McqQuestion)
-#
-#	def verify_options(self):
-#		# returns True if all options belong to this question and False otherwise
-#		good_options = self.mcq_options.filter(mcq_question=mcq_question).count()
-#		all_options = self.mcq_options.count()
-#		return good_options == all_options
-
 class McqAnswer(models.Model):
 	answer = models.OneToOneField(Answer)
 	mcq_question = models.ForeignKey(McqQuestion)
@@ -220,11 +206,6 @@ class McqAnswer(models.Model):
 		good_options = self.chosen_options.filter(mcq_question=self.mcq_question).count()
 		all_options = self.chosen_options.count()
 		return good_options == all_options
-
-#	def save(self,*args,**kwargs):
-#		if not self.verify_options():
-#			raise OptionDoesNotMatchQuestion()
-#		super().save(*args,**kwargs)
 
 	def is_correct(self):
 		wrong_options = self.chosen_options.filter(is_correct=False).count()
@@ -239,7 +220,8 @@ class McqAnswer(models.Model):
 	def save(self,*args,**kwargs):
 		if self.answer.section_answer_sheet.section != self.get_section():
 			raise AnswerHasInvalidSection()
-		super().save(*args,**kwargs)
+#		super().save(*args,**kwargs)
+		super(McqAnswer,self).save(*args,**kwargs)
 
 class McqAnswerToMcqOption(models.Model):
 	mcq_answer = models.ForeignKey(McqAnswer)
@@ -248,7 +230,8 @@ class McqAnswerToMcqOption(models.Model):
 	def save(self,*args,**kwargs):
 		if self.mcq_answer.mcq_question != self.mcq_option.mcq_question:
 			raise OptionDoesNotMatchQuestion()
-		super().save(*args,**kwargs)
+#		super().save(*args,**kwargs)
+		super(McqAnswerToMcqOption,self).save(*args,**kwargs)
 
 # Text Questions ===================================================================================
 
@@ -291,5 +274,5 @@ class TextAnswer(models.Model):
 	def save(self,*args,**kwargs):
 		if self.answer.section_answer_sheet.section != self.get_section():
 			raise AnswerHasInvalidSection()
-		super().save(*args,**kwargs)
-
+#		super().save(*args,**kwargs)
+		super(TextAnswer,self).save(*args,**kwargs)
