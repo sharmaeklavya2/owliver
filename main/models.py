@@ -19,7 +19,7 @@ QUESTION_TYPE_DICT = {
 # Extra question types:
 # mmcq is mcq with multicorrect=True
 # regex is text with use_regex=True
- 
+
 QUESTION_TYPE = list(QUESTION_TYPE_DICT.items())
 
 class InvalidOptionsForQuestion(Exception):
@@ -257,7 +257,7 @@ class TextQuestion(models.Model):
 	ignore_case = models.BooleanField(default=False)
 	use_regex = models.BooleanField(default=False)
 	correct_answer = models.TextField(blank=False)
-	
+
 	def get_qtype(self):
 		return "text"
 	def get_section(self):

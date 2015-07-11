@@ -8,6 +8,8 @@ output.txt
 /TODO.txt
 secret.txt
 myvenv/
+myvenv2/
+myvenv3/
 
 # OS files
 *~
