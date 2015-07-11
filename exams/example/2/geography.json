@@ -11,16 +11,19 @@
 		{
 			"text": "Which is the largest country (by area) in the world?",
 			"type": "text",
+			"ignore_case": false,
 			"answer": "Russia"
 		},
 		{
 			"text": "Which is the longest river in the world?",
 			"type": "text",
+			"ignore_case": false,
 			"answer": "Nile"
 		},
 		{
 			"text": "Which is the largest ocean in the world?",
 			"type": "regex",
+			"ignore_case": false,
 			"answer": "Pacific( [Oo]cean)?"
 		},
 		"file: desert_question.json"

@@ -255,7 +255,7 @@ class McqAnswerToMcqOption(models.Model):
 
 class TextQuestion(models.Model):
 	question = models.OneToOneField(Question)
-	ignore_case = models.BooleanField(default=False)
+	ignore_case = models.BooleanField(default=True)
 	use_regex = models.BooleanField(default=False)
 	correct_answer = models.TextField(blank=False)
 
