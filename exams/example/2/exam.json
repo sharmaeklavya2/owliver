@@ -1,6 +1,7 @@
 {
 	"name": "Example GK questions",
 	"comment": "Questions taken from http://importantquestionsabout.blogspot.in/2013/02/gk-questions-and-answers-for-kids.html",
+	"tags":["testing","sample"],
 	"sections":
 	[
 		"file:animals.json",
