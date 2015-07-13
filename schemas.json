@@ -28,6 +28,7 @@
 				"properties":
 				{
 					"title":{"type":"string"},
+					"text":{"type":"string"},
 					"is_correct":{"type":"boolean"}
 				},
 				"required":["text"]
@@ -177,9 +178,9 @@
 				"type":"object",
 				"properties":
 				{
-					"correct_marks":{"type":"integer"},
-					"wrong_marks":{"type":"integer"},
-					"na_marks":{"type":"integer"},
+					"correct":{"type":"integer"},
+					"wrong":{"type":"integer"},
+					"na":{"type":"integer"},
 					"hint_deduction":{"type":"integer"}
 				}
 			},
