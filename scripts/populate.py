@@ -12,12 +12,7 @@ if BASE_DIR not in sys.path:
 import json
 from scripts import validation
 
-class QuestionTypeNotImplementedError(NotImplementedError):
-	qtype = "Unspecified"
-	def __init__(self,qtype):
-		self.qtype=qtype
-	def __str__(self):
-		return "Questions of type "+qtype+" are not yet supported"
+from custom_exceptions import QuestionTypeNotImplemented
 
 def add_options(mcq_question_in_db,options_list,correct_status):
 	"""
@@ -54,7 +49,7 @@ def add_question(section_in_db,question_dict):
 	for key in question_dict:
 		if key in valid_properties and key not in special_properties and hasattr(question,key):
 			setattr(question,key,question_dict[key])
-		# It was planned at the beginning of the project that useless keys 
+		# It was planned at the beginning of the project that useless keys
 		# will be added as JSON to the metadata field of models.Question
 		# but implementing that seems to be difficult so I'm leaving it out for now
 	question.section = section_in_db
@@ -90,7 +85,7 @@ def add_question(section_in_db,question_dict):
 		mcq_question.verify_correct_options()
 
 	else:
-		raise QuestionTypeNotImplementedError(qtype)
+		raise QuestionTypeNotImplemented(qtype)
 
 def add_section(exam_in_db,section_dict):
 	# add simple properties

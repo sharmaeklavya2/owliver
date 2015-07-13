@@ -10,9 +10,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 import json
-_schemas_file = open(os.path.join(BASE_DIR,"schemas.json"))
-schema = json.load(_schemas_file)
-_schemas_file.close()
+with open(os.path.join(BASE_DIR,"schemas.json")) as _schemas_file:
+	schema = json.load(_schemas_file)
 ptr_pattern = schema["pointer"]["pattern"]
 
 import re
@@ -41,7 +40,7 @@ def validate_and_show(filepath,type_of_schema,print_messages=True):
 		if JSONSCHEMA_PRESENT:
 			try:
 				jsonschema.validate(jsonobj,schema)
-				if print_messages: 
+				if print_messages:
 					print(relfilepath+" is a correct "+type_of_schema+" by schema")
 				return _PASS
 			except jsonschema.ValidationError:
@@ -62,7 +61,7 @@ DEFAULT_TEST_QUESTIONS_DIR = os.path.join(BASE_DIR,"test_questions")
 def validate_all_test_questions(root=DEFAULT_TEST_QUESTIONS_DIR):
 	"""
 	Looks for all JSON files in the directory 'root' and validates them against the question schema.
-	It prints the result on stdout. 
+	It prints the result on stdout.
 	If a file name starts with 'pass' and the file does not pass validation, or
 	if a file name starts with 'fail' and the file does not fail validation,
 	it displays a '*' next to the file name in the printed results
@@ -110,7 +109,7 @@ def _replace_object_pointers_by_contents(obj_list,directory,object_validator_and
 			obj_list[i] = object_validator_and_getter(os.path.join(directory,filename))
 
 def validate_and_get_section(abspath_to_section):
-	""" 
+	"""
 	validates a section JSON file and follows links in it to questions
 	Returns the completely build section as a dict
 	An exception is raised if the section or questions referred in it are invalid

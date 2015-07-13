@@ -22,19 +22,15 @@ QUESTION_TYPE_DICT = {
 
 QUESTION_TYPE = list(QUESTION_TYPE_DICT.items())
 
-class InvalidOptionsForQuestion(Exception):
+from custom_exceptions import CustomException, QuestionTypeNotImplemented
+
+class McqOptionDoesNotMatchQuestion(CustomException):
 	def __str__(self):
-		return "These options are invalid for the question"
-class OptionDoesNotMatchQuestion(Exception):
-	def __str__(self):
-		return "Some options do not match the question"
-class InvalidQuestionType(Exception):
-	def __str__(self):
-		return "This is an invalid type of question"
-class AnswerHasInvalidSection(Exception):
+		return "Some options do not match the mcq question"
+class AnswerHasInvalidSection(CustomException):
 	def __str__(self):
 		return "this answer's question belongs to a section which is not the same as it's section_answer_sheet's section"
-class SectionAnswerSheetHasInvalidExam(Exception):
+class SectionAnswerSheetHasInvalidExam(CustomException):
 	def __str__(self):
 		return "this section_answer_sheet's section belongs to an exam which is not the same as it's exam_answer_sheet's exam"
 
@@ -123,10 +119,18 @@ class Question(models.Model):
 		for qtype in QUESTION_TYPE_DICT:
 			if hasattr(self,qtype+"question"):
 				return qtype
+		return ""
+
+	class TypelessQuestion(CustomException):
+		def __str__(self):
+			return "This question has no type associated with it"
 
 	def get_child_question(self):
 		qtype = self.get_qtype()
-		return getattr(self,qtype+"question")
+		if qtype:
+			return getattr(self,qtype+"question")
+		else:
+			raise Question.TypelessQuestion()
 
 	section = models.ForeignKey(Section)
 #	sno = models.PositiveIntegerField(default=0)
@@ -197,10 +201,10 @@ class McqQuestion(models.Model):
 	def no_of_correct_options(self):
 		return self.mcqoption_set.filter(is_correct=True).count()
 
-	class NoCorrectOption(Exception):
+	class NoCorrectOption(CustomException):
 		def __str__(self):
 			return "There is no correct option for this mcq"
-	class TooManyCorrectOptions(Exception):
+	class TooManyCorrectOptions(CustomException):
 		def __str__(self):
 			return "multicorrect is False, yet there are multiple correct options for this mcq"
 
@@ -262,7 +266,7 @@ class McqAnswerToMcqOption(models.Model):
 
 	def save(self,*args,**kwargs):
 		if self.mcq_answer.mcq_question != self.mcq_option.mcq_question:
-			raise OptionDoesNotMatchQuestion()
+			raise McqOptionDoesNotMatchQuestion()
 #		super().save(*args,**kwargs)
 		super(McqAnswerToMcqOption,self).save(*args,**kwargs)
 
