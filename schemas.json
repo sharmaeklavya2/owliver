@@ -5,7 +5,7 @@
 	{
 		"title":"pointer",
 		"type":"string",
-		"pattern":"^file\\: *([^\\0]+\\.json)$"
+		"pattern":"^file\\: *([A-Za-z0-9_\\-][ A-Za-z0-9_\\-/]*\\.json)$"
 	},
 
 	"tag_list":
