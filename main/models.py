@@ -38,6 +38,13 @@ class SectionAnswerSheetHasInvalidExam(Exception):
 	def __str__(self):
 		return "this section_answer_sheet's section belongs to an exam which is not the same as it's exam_answer_sheet's exam"
 
+class Tag(models.Model):
+	name = models.CharField(max_length=30,blank=False)
+	info = models.TextField(blank=True)
+
+	def __str__(self):
+		return self.name
+
 class Exam(models.Model):
 	name = models.CharField(max_length=50,blank=False)
 	info = models.TextField(blank=True)
@@ -45,6 +52,7 @@ class Exam(models.Model):
 		# timedelta() means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
 	comment = models.TextField(blank=True)
+	tags = models.ManyToManyField(Tag)
 
 	def __str__(self):
 		return self.name
@@ -55,6 +63,7 @@ class Section(models.Model):
 	exam = models.ForeignKey(Exam)
 #	sno = models.PositiveIntegerField(default=0)
 	comment = models.TextField(blank=True)
+	tags = models.ManyToManyField(Tag)
 
 	def __str__(self):
 		return self.exam.name+" : "+self.name
@@ -123,6 +132,7 @@ class Question(models.Model):
 #	sno = models.PositiveIntegerField(default=0)
 	comment = models.TextField(blank=True)
 	metadata = models.TextField(blank=True)
+	tags = models.ManyToManyField(Tag)
 
 class ExamAnswerSheet(models.Model):
 	exam = models.ForeignKey(Exam)
@@ -153,6 +163,7 @@ class SectionAnswerSheet(models.Model):
 class Answer(models.Model):
 	section_answer_sheet = models.ForeignKey(SectionAnswerSheet)
 #	question = models.ForeignKey(Question)
+	viewed_hint = models.BooleanField(default=False)
 
 	def get_qtype(self):
 		for qtype in QUESTION_TYPE_DICT:
@@ -163,8 +174,9 @@ class Answer(models.Model):
 		qtype = self.get_qtype()
 		return getattr(self,qtype+"answer")
 
-	def is_correct(self):
-		return self.get_child_answer().is_correct()
+	def attempt_status(self):
+		# should return True for correct answer, False for wrong answer and None for not attempted
+		return self.get_child_answer().attempt_status()
 	def get_section(self):
 		return self.get_child_answer().get_section()
 	def __str__(self):
@@ -225,7 +237,10 @@ class McqAnswer(models.Model):
 		all_options = self.chosen_options.count()
 		return good_options == all_options
 
-	def is_correct(self):
+	def attempt_status(self):
+		total_options = self.chosen_options.count()
+		if total_options==0:
+			return None
 		wrong_options = self.chosen_options.filter(is_correct=False).count()
 		return wrong_options == 0
 	def get_section(self):
@@ -281,8 +296,11 @@ class TextAnswer(models.Model):
 	text_question = models.ForeignKey(TextQuestion)
 	response = models.TextField(blank=True)
 
-	def is_correct(self):
-		return self.text_question.check_response(self.response)
+	def attempt_status(self):
+		if self.response:
+			return self.text_question.check_response(self.response)
+		else:
+			return None
 	def get_section(self):
 		return self.text_question.get_section()
 	def get_qtype(self):
