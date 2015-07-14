@@ -1,0 +1,128 @@
+{
+	"name":"Cyber Olympiad",
+	"info":"This exam tests knowlege of computers and IT.",
+	"author":"Eklavya Sharma",
+	"tags":["computers","IT"],
+	"shuffle_sections":true,
+	"time_limit":240,
+	"sections":
+	[
+		{
+			"name":"Objective",
+			"info":"This section has MCQs which have exactly one correct answer.",
+			"comment":"Questions in this section have been taken from MTG's book to prepare for SOF's NCO (National Cyber Olympiad) 2010",
+			"marking_scheme":
+			{"correct":3,"wrong":-1},
+			"shuffle":
+			{
+				"questions":false,
+				"options":true
+			},
+			"questions":
+			[
+				{
+					"title":"HTML tags",
+					"text":"HTML tags must be written within:",
+					"type":"mcq",
+					"options":
+					[
+						"()",
+						"[]",
+						{"text":"<>","is_correct":true},
+						"{}"
+					],
+					"tags":["HTML"]
+				},
+				{
+					"text":"In Telnet, the client computer is called",
+					"type":"mcq",
+					"options":
+					[
+						{"text":"Local","is_correct":true},
+						"Remote",
+						"Server",
+						"Node"
+					],
+					"tags":["telnet","networking"]
+				},
+				{
+					"text":"The IP address code does not contain",
+					"type":"mcq",
+					"options":
+					[
+						"Name of country",
+						"Service provider",
+						{"text":"User name","is_correct":true},
+						"Network"
+					],
+					"tags":["networking"]
+				},
+				{
+					"text":"The processing speed of a computer is measured in",
+					"type":"mcq",
+					"options":
+					[
+						"Megabyte",
+						"16-bit",
+						{"text":"Megahertz","is_correct":true},
+						"Milliseconds"
+					],
+					"tags":["hardware"]
+				},
+				{
+					"title":"database",
+					"text":"Which of the following features distinguishes a database file from a mere collection of data?",
+					"type":"mcq",
+					"options":
+					[
+						{"text":"Database enables data to be organised for effective use much faster","is_correct":true},
+						"It organizes data into rows and columns",
+						"It gives reference name to each file it creates",
+						"It provides search facility"
+					],
+					"tags":["database"]
+				}
+			]
+		},
+
+		{
+			"name":"Subjectve",
+			"info":"Give full form or one-word answers for questions in this section. Checking is case-insensitive. Only use alphanumeric characters or space",
+			"comment":"Questions in this section are from old NCOs",
+			"marking_scheme":{"correct":4},
+			"shuffle":{"questions":true},
+			"questions":
+			[
+				{
+					"text":"A program which converts a high-level language into machine language is called a ____",
+					"type":"text",
+					"answer":"compiler"
+				},
+				{
+					"text":"What is the full form of URL?",
+					"type":"text",
+					"answer":"Uniform Resource Locator",
+					"tags":["OS"]
+				},
+				{
+					"text":"What is the full form of HTTP?",
+					"type":"text",
+					"answer":"Hypertext Transfer Protocol",
+					"tags":["networking"]
+				},
+				{
+					"text":"What is the full form of SSL?",
+					"type":"text",
+					"answer":"Secure Sockets Layer",
+					"tags":["networking","security"]
+				},
+				{
+					"text":"Unsolicited bulk email is called?",
+					"type":"text",
+					"answer":"spam",
+					"tags":["email"]
+				}
+			]
+		}
+	]
+}
