@@ -72,11 +72,21 @@ class Exam(models.Model):
 	comment = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
 
-	def add_tag(self,tagname):
-		return add_tag(self,tagname)
-
 	def __str__(self):
 		return self.name
+	def add_tag(self,tagname):
+		return add_tag(self,tagname)
+	def export(self):
+		exam_dict = {"name":self.name}
+		if self.info: exam_dict["info"] = self.info
+		if self.comment: exam_dict["comment"] = self.comment
+		if self.time_limit!=timedelta(0): exam_dict["time_limit"] = self.time_limit.total_seconds()
+		if self.shuffle_sections: exam_dict["shuffle_sections"] = self.shuffle_sections
+		tags_list = [tag.name for tag in self.tags.order_by('id')]
+		if tags_list: exam_dict["tags"] = tags_list
+		sections_list = [section.export() for section in self.section_set.order_by('id')]
+		if sections_list: exam_dict["sections"] = sections_list
+		return exam_dict
 
 class Section(models.Model):
 	name = models.CharField(max_length=50,blank=False)
@@ -91,19 +101,18 @@ class Section(models.Model):
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
 
-	# marking scheme
+	# marking_scheme
 	correct_marks = models.IntegerField("Marks for correct answer",default=1)
 	wrong_marks = models.IntegerField("Marks for wrong answer",default=0)
 	na_marks = models.IntegerField("Marks for not attempting question",default=0)
 	hint_deduction = models.IntegerField("Marks deducted for viewing hint",default=0)
-
-# These options will be used if question customization is off
-#	# max option (0 to allow all)
-#	max_mcq_options = models.PositiveIntegerField("Max options allowed in a single-correct MCQ question",default=0)
-#	max_mmcq_options = models.PositiveIntegerField("Max options allowed in a multi-correct MCQ question",default=0)
-#	max_match_options = models.PositiveIntegerField("Max options allowed in a match-the-following question",default=0)
-#	max_mmatch_options = models.PositiveIntegerField("Max options allowed in a matrix match question",default=0)
-#	max_order_options = models.PositiveIntegerField("Max options allowed in an ordering question",default=0)
+	def export_marking_scheme(self):
+		ms_dict = {}
+		if self.correct_marks!=1: ms_dict["correct"] = self.correct_marks
+		if self.wrong_marks!=0: ms_dict["wrong"] = self.wrong_marks
+		if self.na_marks!=0: ms_dict["na"] = self.na_marks
+		if self.hint_deduction!=0: ms_dict["hint_deduction"] = self.hint_deduction
+		return ms_dict
 
 	# unlock
 	unlock_marks = models.IntegerField("Minimum marks to attempt this section",default=0)
@@ -116,10 +125,21 @@ class Section(models.Model):
 			return (has_marks and has_questions)
 		else:
 			return (has_marks or has_questions)
+	def export_unlock(self):
+		unlock_dict = {}
+		if self.unlock_marks!=0: unlock_dict["marks"]=self.unlock_marks
+		if self.unlock_questions!=0: unlock_dict["questions"]=self.unlock_questions
+		if self.unlock_both_needed!=False: unlock_dict["both_needed"]=self.unlock_both_needed
+		return unlock_dict
 
-	#shuffle
+	# shuffle
 	shuffle_options = models.BooleanField("Randomly shuffle options of questions",default=False)
 	shuffle_questions = models.BooleanField("Randomly shuffle questions",default=False)
+	def export_shuffle(self):
+		shuffle_dict = {}
+		if self.shuffle_questions: shuffle_dict["questions"] = self.shuffle_questions
+		if self.shuffle_options: shuffle_dict["options"] = self.shuffle_options
+		return shuffle_dict
 
 	# other restrictions
 	allowed_attempts = models.PositiveIntegerField("Number of attempts allowed per question",default=0)
@@ -130,6 +150,25 @@ class Section(models.Model):
 		# student will be shown correct answer after exhausting all attempts
 	max_questions_to_attempt = models.PositiveIntegerField("Maximum number of questions a student is allowed to attempt",default=0)
 		# if this value is 0, all questions can be attempted
+
+	def export(self):
+		sec_dict = {"name":self.name}
+		if self.info: sec_dict["info"] = self.info
+		if self.comment: sec_dict["comment"] = self.comment
+		if self.allowed_attempts!=0: sec_dict["allowed_attempts"] = self.allowed_attempts
+		if self.show_correct_answer!=False: sec_dict["show_correct_answer"] = self.show_correct_answer
+		if self.max_questions_to_attempt!=0: sec_dict["max_questions_to_attempt"] = self.max_questions_to_attempt
+		tags_list = [tag.name for tag in self.tags.order_by('id')]
+		if tags_list: sec_dict["tags"] = tags_list
+		ms_dict = self.export_marking_scheme()
+		if ms_dict: sec_dict["marking_scheme"] = ms_dict
+		unlock_dict = self.export_unlock()
+		if unlock_dict: sec_dict["unlock"] = unlock_dict
+		shuffle_dict = self.export_shuffle()
+		if shuffle_dict: sec_dict["shuffle"] = shuffle_dict
+		questions_list = [question.export() for question in self.question_set.order_by('id')]
+		if questions_list: sec_dict["questions"] = questions_list
+		return sec_dict
 
 class Question(models.Model):
 	title = models.CharField(max_length=120,blank=True)
@@ -167,7 +206,15 @@ class Question(models.Model):
 
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
-
+	def export(self):
+		ques_dict = self.get_child_question().export()
+		if self.title: ques_dict["title"] = self.title
+		if self.text: ques_dict["text"] = self.text
+		if self.hint: ques_dict["hint"] = self.hint
+		if self.comment: ques_dict["comment"] = self.comment
+		tags_list = [tag.name for tag in self.tags.order_by('id')]
+		if tags_list: ques_dict["tags"] = tags_list
+		return ques_dict
 
 class ExamAnswerSheet(models.Model):
 	exam = models.ForeignKey(Exam)
@@ -247,6 +294,15 @@ class McqQuestion(models.Model):
 		elif self.multicorrect==False and correct_options>1:
 			raise McqQuestion.TooManyCorrectOptions()
 
+	def export(self):
+		mcq_ques_dict = {}
+		if self.multicorrect:
+			mcq_ques_dict["type"]="mmcq"
+		else:
+			mcq_ques_dict["type"]="mcq"
+		mcq_ques_dict["options"] = [option.export() for option in self.mcqoption_set.order_by('id')]
+		return mcq_ques_dict
+
 class McqOption(models.Model):
 	title = models.CharField(max_length=30,blank=True)
 	text = models.TextField(blank=False)
@@ -257,6 +313,15 @@ class McqOption(models.Model):
 	def option_text(self):
 		if self.title: return self.title
 		else: return self.text
+
+	def export(self):
+		if not self.title and not self.is_correct:
+			return self.text
+		else:
+			mydict = {"text":self.text}
+			if self.title: mydict["title"] = self.title
+			if self.is_correct: mydict["is_correct"] = self.is_correct
+			return mydict
 
 	def __str__(self):
 		return str(self.mcq_question) + " : " + self.option_text()
@@ -325,6 +390,16 @@ class TextQuestion(models.Model):
 				return response.lower()==self.correct_answer.lower()
 			else:
 				return response==self.correct_answer
+
+	def export(self):
+		text_ques_dict = {}
+		if self.use_regex:
+			text_ques_dict["type"]="regex"
+		else:
+			text_ques_dict["type"]="text"
+		text_ques_dict["answer"] = self.correct_answer
+		text_ques_dict["ignore_case"] = self.ignore_case
+		return text_ques_dict
 
 class TextAnswer(models.Model):
 	answer = models.OneToOneField(Answer)

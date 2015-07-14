@@ -232,7 +232,7 @@
 				}
 			},
 			"time_limit":
-			{"type":"integer","minimum":0},
+			{"type":"number","minimum":0},
 			"shuffle_sections":{"type":"boolean"}
 		},
 		"required":["name"]
