@@ -89,27 +89,62 @@ def add_question(section_in_db,question_dict):
 
 def add_section(exam_in_db,section_dict):
 	# add simple properties
-	properties_to_add=["name","info","comment"]
+	properties_to_add=["name","info","comment",
+		"allowed_attempts",
+		"show_correct_answer",
+		"max_questions_to_attempt"]
 	section = Section()
 	for key in properties_to_add:
 		if key in section_dict and hasattr(section,key):
 			setattr(section,key,section_dict[key])
 	section.exam = exam_in_db
+
+	# add compound properties
+	if "marking_scheme" in section_dict:
+		subdict = section_dict["marking_scheme"]
+		if "correct" in subdict:
+			section.correct_marks = subdict["correct"]
+		if "wrong" in subdict:
+			section.wrong_marks = subdict["wrong"]
+		if "na" in subdict:
+			section.na_marks = subdict["na"]
+		if "hint_deduction" in subdict:
+			section.hint_deduction = subdict["hint_deduction"]
+	if "unlock" in section_dict:
+		subdict = section_dict["unlock"]
+		if "marks" in subdict:
+			section.unlock_marks = subdict["marks"]
+		if "questions" in subdict:
+			section.unlock_questions = subdict["questions"]
+		if "both_needed" in subdict:
+			section.unlock_both_needed = subdict["both_needed"]
+	if "shuffle" in section_dict:
+		subdict = section_dict["shuffle"]
+		if "questions" in subdict:
+			section.shuffle_questions = subdict["questions"]
+		if "options" in subdict:
+			section.shuffle_options = subdict["options"]
 	section.save()
 
 	# add questions
 	for question_dict in section_dict["questions"]:
 		add_question(section,question_dict)
 
+from datetime import timedelta
+
 def add_exam(exam_dict,print_messages=False):
 	# add simple properties
-	valid_properties = validation.schema["exam"]["properties"]
-	special_properties = ["tags","time_limit"]
+	simple_properties=["name","info","comment","author","shuffle_sections"]
 	exam = Exam()
 	for key in exam_dict:
-		if key in valid_properties and key not in special_properties and hasattr(exam,key):
+		if key in simple_properties and hasattr(exam,key):
 			setattr(exam,key,exam_dict[key])
+
+	# add non-simple properties
+	if "time_limit" in exam_dict:
+		exam.time_limit = timedelta(seconds=exam_dict["time_limit"])
 	exam.save()
+	# add tags
 
 	# add sections
 	for section_dict in exam_dict["sections"]:
