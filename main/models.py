@@ -10,10 +10,11 @@ QUESTION_TYPE_DICT = {
 	"text": "Text based subjective",
 #	"int": "Integer",
 #	"float": "Real number"
+#	"bool": "True or False",
 #	"match": "Match the following",
 #	"mmatch": "Matrix match",
 #	"order": "Arrange in order",
-#	"bool": "True or False",
+#	"enlist": "List out" # can be in order or without order
 }
 
 # Extra question types:
@@ -21,6 +22,13 @@ QUESTION_TYPE_DICT = {
 # regex is text with use_regex=True
 
 QUESTION_TYPE = list(QUESTION_TYPE_DICT.items())
+UNKNOWN_TAG_ACTION = "create"
+# UNKNOWN_TAG_ACTION decides what add_tag does when it encounters a tag not already saved in database
+# "create" means create the new tag
+# "error" means raise an exception (or let one get raised by django)
+# "ignore" means don't add that tag to db and continue
+
+# Exceptions =======================================================================================
 
 from custom_exceptions import CustomException, QuestionTypeNotImplemented
 
@@ -34,12 +42,26 @@ class SectionAnswerSheetHasInvalidExam(CustomException):
 	def __str__(self):
 		return "this section_answer_sheet's section belongs to an exam which is not the same as it's exam_answer_sheet's exam"
 
+# Main Models ======================================================================================
+
 class Tag(models.Model):
-	name = models.CharField(max_length=30,blank=False)
-	info = models.TextField(blank=True)
+	name = models.CharField(max_length=30,blank=False,unique=True)
+	description = models.TextField(blank=True)
 
 	def __str__(self):
 		return self.name
+
+def add_tag(obj,tagname):
+	try:
+		tag = Tag.objects.get(name=tagname)
+		obj.tags.add(tag)
+	except Tag.DoesNotExist:
+		if UNKNOWN_TAG_ACTION=="create":
+			tag = Tag(name=tagname)
+			tag.save()
+			obj.tags.add(tag)
+		elif UNKNOWN_TAG_ACTION=="error":
+			raise
 
 class Exam(models.Model):
 	name = models.CharField(max_length=50,blank=False)
@@ -49,6 +71,9 @@ class Exam(models.Model):
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
 	comment = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
+
+	def add_tag(self,tagname):
+		return add_tag(self,tagname)
 
 	def __str__(self):
 		return self.name
@@ -63,6 +88,8 @@ class Section(models.Model):
 
 	def __str__(self):
 		return self.exam.name+" : "+self.name
+	def add_tag(self,tagname):
+		return add_tag(self,tagname)
 
 	# marking scheme
 	correct_marks = models.IntegerField("Marks for correct answer",default=1)
@@ -112,7 +139,7 @@ class Question(models.Model):
 
 	def __str__(self):
 		if self.title: return self.title
-		elif len(self.text)<30: return self.text
+		elif len(self.text)<=50: return self.text
 		else: return "Untitled"
 
 	def get_qtype(self):
@@ -137,6 +164,10 @@ class Question(models.Model):
 	comment = models.TextField(blank=True)
 	metadata = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
+
+	def add_tag(self,tagname):
+		return add_tag(self,tagname)
+
 
 class ExamAnswerSheet(models.Model):
 	exam = models.ForeignKey(Exam)

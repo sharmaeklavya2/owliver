@@ -34,6 +34,7 @@
 					"tags":["HTML"]
 				},
 				{
+					"title":"telnet client",
 					"text":"In Telnet, the client computer is called",
 					"type":"mcq",
 					"options":
@@ -46,6 +47,7 @@
 					"tags":["telnet","networking"]
 				},
 				{
+					"title":"IP address",
 					"text":"The IP address code does not contain",
 					"type":"mcq",
 					"options":
@@ -58,6 +60,7 @@
 					"tags":["networking"]
 				},
 				{
+					"title":"Processing speed measure",
 					"text":"The processing speed of a computer is measured in",
 					"type":"mcq",
 					"options":
@@ -94,29 +97,34 @@
 			"questions":
 			[
 				{
+					"title":"HLL to LLL",
 					"text":"A program which converts a high-level language into machine language is called a ____",
 					"type":"text",
 					"answer":"compiler"
 				},
 				{
+					"title":"URL",
 					"text":"What is the full form of URL?",
 					"type":"text",
 					"answer":"Uniform Resource Locator",
-					"tags":["OS"]
+					"tags":["networking"]
 				},
 				{
+					"title":"HTTP",
 					"text":"What is the full form of HTTP?",
 					"type":"text",
 					"answer":"Hypertext Transfer Protocol",
 					"tags":["networking"]
 				},
 				{
+					"title":"SSL",
 					"text":"What is the full form of SSL?",
 					"type":"text",
 					"answer":"Secure Sockets Layer",
 					"tags":["networking","security"]
 				},
 				{
+					"title":"Bulk email",
 					"text":"Unsolicited bulk email is called?",
 					"type":"text",
 					"answer":"spam",

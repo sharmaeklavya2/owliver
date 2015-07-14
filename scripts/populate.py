@@ -54,6 +54,9 @@ def add_question(section_in_db,question_dict):
 		# but implementing that seems to be difficult so I'm leaving it out for now
 	question.section = section_in_db
 	question.save()
+	if "tags" in question_dict:
+		for tagname in question_dict["tags"]:
+			question.add_tag(tagname)
 
 	# add type-specific stuff
 	qtype = question_dict["type"]
@@ -126,6 +129,11 @@ def add_section(exam_in_db,section_dict):
 			section.shuffle_options = subdict["options"]
 	section.save()
 
+	# add tags
+	if "tags" in section_dict:
+		for tagname in section_dict["tags"]:
+			section.add_tag(tagname)
+
 	# add questions
 	for question_dict in section_dict["questions"]:
 		add_question(section,question_dict)
@@ -144,7 +152,11 @@ def add_exam(exam_dict,print_messages=False):
 	if "time_limit" in exam_dict:
 		exam.time_limit = timedelta(seconds=exam_dict["time_limit"])
 	exam.save()
+
 	# add tags
+	if "tags" in exam_dict:
+		for tagname in exam_dict["tags"]:
+			exam.add_tag(tagname)
 
 	# add sections
 	for section_dict in exam_dict["sections"]:
