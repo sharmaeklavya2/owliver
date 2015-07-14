@@ -1,0 +1,7 @@
+physics
+chem	chemistry
+math	mathematics
+
+networking
+IT		Information Technology
+HTML	HTML
