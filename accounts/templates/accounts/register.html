@@ -1,0 +1,22 @@
+{% extends 'accounts/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}Owliver - Register{% endblock %}
+{% block h1_block %}Create an Account{% endblock %}
+
+{% block body_block %}
+<p style="color:red">{{register_error}}</p>
+<form method="POST" action="." >
+	{% csrf_token %}
+	Enter Username:<br />
+	<input type="text" name="username" value="{{username}}" />
+	<br />
+	Enter Password:<br />
+	<input type="password" name="password1" />
+	<br />
+	Enter Password Again:<br />
+	<input type="password" name="password2" />
+	<br />
+	<button type="submit" >Sign Up</button>
+</form>
+{% endblock %}

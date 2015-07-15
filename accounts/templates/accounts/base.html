@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title_block %}{{base_title |default:"Accounts"}}{% endblock %}</title>
+</head>
+
+<body>
+<h1>{% block h1_block %}{{base_h1}}{% endblock %}</h1>
+{% block body_block %}
+	{{base_body}}
+{% endblock %}
+</body>
+</html>

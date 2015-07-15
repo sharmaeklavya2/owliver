@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 import os
+from django.core.urlresolvers import reverse_lazy
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+PROJECT_NAME = "Owliver"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -26,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'accounts',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,3 +101,8 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+LOGIN_URL = reverse_lazy("accounts:login")
+LOGOUT_URL = reverse_lazy("accounts:logout")
+LOGIN_REDIRECT_URL = reverse_lazy("main:index")
+LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL

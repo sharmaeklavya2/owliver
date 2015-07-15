@@ -1,0 +1,21 @@
+{% extends 'accounts/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}Owliver - Login{% endblock %}
+{% block h1_block %}Login to Owliver{% endblock %}
+
+{% block body_block %}
+<p style="color:red">{{login_error}}</p>
+<form method="POST" action="." >
+	{% csrf_token %}
+	Username:<br />
+	<input type="hidden" name="next" value="{{next}}" />
+	<input type="text" name="username" value="{{username}}" />
+	<br />
+	Password:<br />
+	<input type="password" name="password" />
+	<br />
+	<button type="submit" >Login</button>
+</form>
+<p><a href="{% url 'accounts:register' %}">Register here</a> if you don't have an account</p>
+{% endblock %}
