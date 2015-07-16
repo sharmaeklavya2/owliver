@@ -66,8 +66,8 @@ def add_tag(obj,tagname):
 class Exam(models.Model):
 	name = models.CharField(max_length=50,blank=False)
 	info = models.TextField(blank=True)
-	time_limit = models.DurationField("Time limit to complete exam",default=timedelta())
-		# timedelta() means infinite time
+	time_limit = models.DurationField("Time limit to complete exam",default=timedelta(0))
+		# timedelta(0) means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
 	comment = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
@@ -192,11 +192,12 @@ class Question(models.Model):
 			return "This question has no type associated with it"
 
 	def get_child_question(self):
-		qtype = self.get_qtype()
-		if qtype:
-			return getattr(self,qtype+"question")
-		else:
-			raise Question.TypelessQuestion()
+		for qtype in QUESTION_TYPE_DICT:
+			try:
+				return getattr(self,qtype+"question")
+			except AttributeError:
+				pass
+		raise Question.TypelessQuestion()
 
 	section = models.ForeignKey(Section)
 #	sno = models.PositiveIntegerField(default=0)
@@ -224,9 +225,56 @@ class ExamAnswerSheet(models.Model):
 
 	def __str__(self):
 		return str(user)+" : "+str(exam)
-	def get_duration(self):
-		if self.start_time==None or self.end_time==None:
+
+	TIMER_ERROR = 0			# error
+	TIMER_NOT_SET = 1		# timer not set (start_time is None)
+	TIMER_NOT_STARTED = 2	# timer set but exam not started (start_time is in the future)
+	TIMER_IN_USE = 3		# exam in progress
+	TIMER_ENDED = 4			# exam ended
+	DURATIONLESS_TIMER_STATII = (TIMER_ERROR, TIMER_NOT_SET, TIMER_NOT_STARTED)
+
+	def set_timer(self,start_time=None):
+		if start_time==None:
+			start_time = timezone.now()
+		self.start_time = start_time
+		time_limit = self.exam.time_limit
+		if time_limit==timedelta(0):
+			self.end_time = None
+		else:
+			self.end_time = self.start_time + time_limit
+		self.save()
+
+	def get_timer_status(self):
+		if self.start_time==None:
+			if self.end_time==None:	return ExamAnswerSheet.TIMER_NOT_SET
+			else: return ExamAnswerSheet.TIMER_ERROR
+		now = timezone.now()
+		if self.end_time==None:
+			if now < self.start_time:
+				return ExamAnswerSheet.TIMER_NOT_STARTED
+			else:
+				return ExamAnswerSheet.TIMER_IN_USE
+		if self.end_time < self.start_time:
+			return ExamAnswerSheet.TIMER_ERROR
+		if now < self.start_time:
+			return ExamAnswerSheet.TIMER_NOT_STARTED
+		elif now < self.end_time:
+			return ExamAnswerSheet.TIMER_IN_USE
+		else:
+			return ExamAnswerSheet.TIMER_ENDED
+
+	def get_attempt_duration(self):
+		"""
+		max duration of time which a student has given to this exam
+		TIMER_ERROR, TIMER_NOT_SET, TIMER_NOT_STARTED : return None
+		TIMER_IN_USE : return timezone.now() - self.start_time
+		TIMER_ENDED	: return self.end_time - self.start_time
+		"""
+		timer_status = self.get_timer_status()
+		if timer_status in ExamAnswerSheet.DURATIONLESS_TIMER_STATII:
 			return None
+		if timer_status == ExamAnswerSheet.TIMER_IN_USE:
+			return timezone.now() - self.start_time
 		else:
 			return self.end_time - self.start_time
 
