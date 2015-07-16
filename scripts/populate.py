@@ -10,6 +10,7 @@ if BASE_DIR not in sys.path:
 	sys.path.append(BASE_DIR)
 
 import json
+from scripts import read_schemas
 from scripts import validation
 
 from custom_exceptions import QuestionTypeNotImplemented
@@ -44,7 +45,7 @@ def add_options(mcq_question_in_db,options_list,correct_status):
 def add_question(section_in_db,question_dict):
 	# add generic stuff
 	question = Question()
-	valid_properties = validation.schema["question"]["properties"]
+	valid_properties = read_schemas.schemas["question"]["properties"]
 	special_properties = ["metadata","tags"]
 	for key in question_dict:
 		if key in valid_properties and key not in special_properties and hasattr(question,key):

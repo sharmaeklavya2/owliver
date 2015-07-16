@@ -8,12 +8,8 @@ import sys
 if BASE_DIR not in sys.path:
 	sys.path.append(BASE_DIR)
 
-import json
-_schema_file_path = os.path.join(BASE_DIR,"schemas.json")
-with open(_schema_file_path) as _schema_file:
-	schema = json.load(_schema_file)
-tag_pattern = schema["tag_list"]["items"]["pattern"]
-schema.clear()
+from scripts import read_schemas
+tag_pattern = read_schemas.schemas["tag_list"]["items"]["pattern"]
 
 import re
 from custom_exceptions import CustomException

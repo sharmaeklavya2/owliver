@@ -8,13 +8,13 @@ It also has a function to test all questions in the folder "test_questions"
 
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import sys
+if BASE_DIR not in sys.path:
+	sys.path.append(BASE_DIR)
 
-import json
-with open(os.path.join(BASE_DIR,"schemas.json")) as _schemas_file:
-	schema = json.load(_schemas_file)
-ptr_pattern = schema["pointer"]["pattern"]
-
+from scripts.read_schemas import schemas, ptr_pattern
 import re
+import json
 
 JSONSCHEMA_PRESENT = True
 try:
@@ -33,13 +33,13 @@ def validate_and_show(filepath,type_of_schema,print_messages=True):
 	# returns _FAIL if document is not a valid JSON file
 	# returns _FAIL_SCHEMA if jsonschema is present and document is a valid JSON file but does not match schema
 	# returns _PASS otherwise
-	schema["$ref"]="#/"+type_of_schema
+	schemas["$ref"]="#/"+type_of_schema
 	relfilepath = os.path.relpath(filepath,BASE_DIR)
 	try:
 		jsonobj = json.load(open(filepath))
 		if JSONSCHEMA_PRESENT:
 			try:
-				jsonschema.validate(jsonobj,schema)
+				jsonschema.validate(jsonobj,schemas)
 				if print_messages:
 					print(relfilepath+" is a correct "+type_of_schema+" by schema")
 				return _PASS
@@ -91,10 +91,10 @@ def validate_and_get_obj(filepath,type_of_schema):
 	It does not follow links to other files in the JSON object retrieved from filepath
 	"""
 	# filepath is an absolute path
-	schema["$ref"]="#/"+type_of_schema
+	schemas["$ref"]="#/"+type_of_schema
 	jsonobj = json.load(open(filepath))
 	if JSONSCHEMA_PRESENT:
-		jsonschema.validate(jsonobj,schema)
+		jsonschema.validate(jsonobj,schemas)
 	return jsonobj
 
 def validate_and_get_question(filepath):
