@@ -224,7 +224,7 @@ class ExamAnswerSheet(models.Model):
 	end_time = models.DateTimeField(null=True)
 
 	def __str__(self):
-		return str(user)+" : "+str(exam)
+		return str(self.user)+" : "+str(self.exam)
 
 	TIMER_ERROR = 0			# error
 	TIMER_NOT_SET = 1		# timer not set (start_time is None)
@@ -283,7 +283,7 @@ class SectionAnswerSheet(models.Model):
 	section = models.ForeignKey(Section)
 	exam_answer_sheet = models.ForeignKey(ExamAnswerSheet)
 	def __str__(self):
-		return str(section)
+		return str(self.section)
 	def save(self,*args,**kwargs):
 		if self.section.exam != self.exam_answer_sheet.exam:
 			raise SectionAnswerSheetHasInvalidExam()
@@ -299,11 +299,22 @@ class Answer(models.Model):
 		for qtype in QUESTION_TYPE_DICT:
 			if hasattr(self,qtype+"answer"):
 				return qtype
+		return ""
+
+	class TypelessAnswer(CustomException):
+		def __str__(self):
+			return "This answer has no type associated with it"
 
 	def get_child_answer(self):
-		qtype = self.get_qtype()
-		return getattr(self,qtype+"answer")
+		for qtype in QUESTION_TYPE_DICT:
+			try:
+				return getattr(self,qtype+"answer")
+			except AttributeError:
+				pass
+		raise Answer.TypelessAnswer()
 
+	def get_question(self):
+		return self.get_child_answer().get_generic_question()
 	def attempt_status(self):
 		# should return True for correct answer, False for wrong answer and None for not attempted
 		return self.get_child_answer().attempt_status()
@@ -395,6 +406,10 @@ class McqAnswer(models.Model):
 		return self.mcq_question.get_section()
 	def get_qtype(self):
 		return self.mcq_question.get_qtype()
+	def get_typed_question(self):
+		return self.mcq_question
+	def get_generic_question(self):
+		return self.mcq_question.question
 	def __str__(self):
 		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
 
@@ -463,6 +478,10 @@ class TextAnswer(models.Model):
 		return self.text_question.get_section()
 	def get_qtype(self):
 		return self.text_question.get_qtype()
+	def get_typed_question(self):
+		return self.text_question
+	def get_generic_question(self):
+		return self.text_question.question
 	def __str__(self):
 		return self.response
 	def save(self,*args,**kwargs):

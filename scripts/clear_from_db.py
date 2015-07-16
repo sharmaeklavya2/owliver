@@ -11,7 +11,7 @@ print("Setting up Django ...")
 import django
 django.setup()
 
-from main.models import Exam, Tag
+from main.models import Exam, Tag, ExamAnswerSheet
 from django.contrib.auth.models import User
 
 for arg in sys.argv[1:]:
@@ -19,6 +19,9 @@ for arg in sys.argv[1:]:
 	if arg=="exam" or arg=="exams":
 		print("Clearing all exams ...")
 		Exam.objects.all().delete()
+	elif arg=="eas" or arg=="examanswersheet":
+		print("Clearing all exam_answer_sheets ...")
+		ExamAnswerSheet.objects.all().delete()
 	elif arg=="tag" or arg=="tags":
 		print("Clearing all tags ...")
 		Tag.objects.all().delete()
