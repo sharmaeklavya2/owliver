@@ -1,0 +1,38 @@
+{% extends 'attempt/question.html' %}
+
+{% block input_block %}
+
+<ol type="A">
+	{% for mcqoption in child_question.mcqoption_set.all %}
+	<li>
+		<input 
+			name="response" value="{{mcqoption.id}}" id="{{mcqoption.id}}"
+			type="{% if child_question.multicorrect %}checkbox{% else %}radio{% endif %}"
+			{% if mcqoption in child_answer.chosen_options.all %}checked="checked"{% endif %}
+		/>
+		<label for="{{mcqoption.id}}">{{mcqoption.text}}</label>
+	</li>
+	{% endfor %}
+</ol>
+
+<script type="text/javascript">
+// copied from http://stackoverflow.com/questions/17120576/how-to-uncheck-checked-radio-button#answer-17123987
+	var allRadios = document.getElementsByName('response');
+	var booRadio;
+	var x = 0;
+	for(x = 0; x < allRadios.length; x++)
+	{
+		allRadios[x].onclick = function() 
+		{
+			if(booRadio == this)
+			{
+				this.checked = false;
+				booRadio = null;
+			}
+			else
+			{booRadio = this;}
+		};
+	}
+</script>
+
+{% endblock %}

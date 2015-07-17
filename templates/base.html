@@ -1,7 +1,12 @@
 <!DOCTYPE html>
+{% load staticfiles %}
 <html>
 <head>
 	<title>{% block title_block %}{{base_title |default:"Owliver"}}{% endblock %}</title>
+	<link rel="stylesheet" href="{% static 'base.css' %}" />
+	<style>
+	{% block style_block %}{% endblock %}
+	</style>
 </head>
 
 <body>

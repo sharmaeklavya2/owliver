@@ -5,8 +5,8 @@
 
 <p>Question Info:</p>
 <ul>
-	<li>Exam: {{exam.name}}</li>
-	<li>Section: {{section.name}}</li>
+	<li>Exam: <a href="{% url 'main:attempt_exam' eas.id %}">{{exam.name}}</a></li>
+	<li>Section: <a href="{% url 'main:attempt_section' sas.id %}">{{section.name}}</a></li>
 	{% if qno %}
 	<li>Question no: {{qno}}</li>
 	{% endif %}
@@ -18,14 +18,19 @@
 <hr />
 
 <p>{{question.text}}</p>
+{% if answer.viewed_hint %}
+<p>Hint:<br />{{question.hint}}</p>
+{% endif %}
 
-<form method="POST" action="{% block action_url %}{% endblock %}" >
+<form method="POST" action="{% url 'main:submit' answer.id %}" >
 	{% csrf_token %}
 	{% block input_block %}
 	{% endblock %}
 	<input type="submit" name="submit" value="Submit" /><br />
 	{% if nextaid %}
 	<input type="submit" name="submit_and_next" value="Submit and next question" />
+	{% else %}
+	<input type="submit" name="submit_and_next" value="Submit and next question" disabled="true" />
 	{% endif %}
 </form>
 

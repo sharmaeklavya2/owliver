@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block h1_block %}My Exams{% endblock %}
+
+{% block body_block %}
+	{% if eas_list %}
+		<ol>
+		{% for eas in eas_list %}
+			<li><a href="{% url 'main:attempt_exam' eas.id %}">{{eas.exam.name}}</a></li>
+		{% endfor %}
+		</ol>
+	{% else %}
+		<p>You have no exams.</p>
+	{% endif %}
+{% endblock %}

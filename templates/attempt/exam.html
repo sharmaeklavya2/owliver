@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block h1_block %}{{exam.name}}{% endblock %}
+
+{% block body_block %}
+	<p>{{exam.info}}</p>
+	<hr />
+	<p>Sections list:</p>
+	<ol>
+	{% for sas in eas.sectionanswersheet_set.all %}
+		<li><a href="{% url 'main:attempt_section' sas.id %}">{{sas.section.name}}</a></li>
+	{% endfor %}
+	</ol>
+{% endblock %}

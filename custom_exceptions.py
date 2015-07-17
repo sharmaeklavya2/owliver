@@ -6,4 +6,4 @@ class QuestionTypeNotImplemented(CustomException,NotImplementedError):
 	def __init__(self,qtype):
 		self.qtype=qtype
 	def __str__(self):
-		return "Questions of type \""+qtype+"\" are not yet supported"
+		return "Questions of type \""+self.qtype+"\" are not yet supported"

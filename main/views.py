@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from main import models
-from main.models import Answer, ExamAnswerSheet
+from main.models import Answer, ExamAnswerSheet, SectionAnswerSheet, McqAnswerToMcqOption
 from custom_exceptions import CustomException, QuestionTypeNotImplemented
 
 import django
@@ -38,6 +38,36 @@ class ExamNotStarted(CustomException):
 class InvalidFormData(CustomException):
 	def __str__(self):
 		return "This form has invalid POST data. Either there is a bug in our code or some hacker is at work."
+
+# Attempt ==========================================================================================
+
+@login_required
+def eas_list(request):
+	context_dict = {"eas_list":request.user.examanswersheet_set.all()}
+	return render(request,"attempt/eas_list.html",context_dict)
+
+@login_required
+def attempt_exam(request,eid):
+	eid = int(eid)
+	eas = get_object_or_404(ExamAnswerSheet, id=eid)
+	context_dict = {"eas":eas}
+	exam = eas.exam
+	context_dict["eas"]=eas
+	context_dict["exam"]=exam
+	return render(request,"attempt/exam.html",context_dict)
+
+@login_required
+def attempt_section(request,sid):
+	sid = int(sid)
+	sas = get_object_or_404(SectionAnswerSheet, id=sid)
+	context_dict = {"sas":sas}
+	eas = sas.exam_answer_sheet
+	section = sas.section
+	exam = eas.exam
+	context_dict["eas"]=eas
+	context_dict["exam"]=exam
+	context_dict["section"]=section
+	return render(request,"attempt/section.html",context_dict)
 
 def fill_context_dict_using_answer(current_user,answer):
 	context_dict = {"answer":answer}
@@ -100,14 +130,20 @@ def submit(request,aid):
 
 	# save response to database
 	qtype = context_dict["qtype"]
+	child_answer = context_dict["child_answer"]
 	if qtype=="text":
-		text_answer = context_dict["child_answer"]
 		if "response" not in request.POST:
 			raise InvalidFormData()
-		text_answer.response=request.POST["response"]
-		text_answer.save()
+		child_answer.response=request.POST["response"]
+	elif qtype=="mcq":
+		child_answer.chosen_options.clear()
+		chosen_option_ids = request.POST.getlist("response")
+		for option_id in chosen_option_ids:
+			link = McqAnswerToMcqOption(mcq_answer=child_answer,mcq_option_id=option_id)
+			link.save()
 	else:
-		raise QuestionTypeNotImplemented()
+		raise QuestionTypeNotImplemented(qtype)
+	child_answer.save()
 
 	# redirect
 	if "submit" in request.POST:
