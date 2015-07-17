@@ -125,6 +125,7 @@
 			"text":{"type":"string"},
 			"hint":{"type":"string"},
 			"comment":{"type":"string"},
+			"solution":{"type":"string"},
 			"type":{"type":"string"},
 			"tags":{"$ref":"#/tag_list"}
 		},
@@ -155,6 +156,7 @@
 			"name":{"type":"string"},
 			"info":{"type":"string"},
 			"comment":{"type":"string"},
+			"postinfo":{"type":"string"},
 			"tags":{"$ref":"#/tag_list"},
 			"questions":
 			{
@@ -217,6 +219,7 @@
 			"name":{"type":"string"},
 			"info":{"type":"string"},
 			"comment":{"type":"string"},
+			"postinfo":{"type":"string"},
 			"tags":{"$ref":"#/tag_list"},
 			"author":{"type":"string"},
 			"sections":

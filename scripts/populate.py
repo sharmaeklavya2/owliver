@@ -93,7 +93,7 @@ def add_question(section_in_db,question_dict):
 
 def add_section(exam_in_db,section_dict):
 	# add simple properties
-	properties_to_add=["name","info","comment",
+	properties_to_add=["name","info","comment","postinfo",
 		"allowed_attempts",
 		"show_correct_answer",
 		"max_questions_to_attempt"]
@@ -143,7 +143,7 @@ from datetime import timedelta
 
 def add_exam(exam_dict,print_messages=False):
 	# add simple properties
-	simple_properties=["name","info","comment","author","shuffle_sections"]
+	simple_properties=["name","info","comment","author","postinfo","shuffle_sections"]
 	exam = Exam()
 	for key in exam_dict:
 		if key in simple_properties and hasattr(exam,key):

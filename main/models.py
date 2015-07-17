@@ -69,7 +69,10 @@ class Exam(models.Model):
 	time_limit = models.DurationField("Time limit to complete exam",default=timedelta(0))
 		# timedelta(0) means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
+	author = models.TextField(blank=True)
 	comment = models.TextField(blank=True)
+	postinfo = models.TextField(blank=True)
+	owner = models.ForeignKey(User,null=True)
 	tags = models.ManyToManyField(Tag)
 
 	def __str__(self):
@@ -94,6 +97,7 @@ class Section(models.Model):
 	exam = models.ForeignKey(Exam)
 #	sno = models.PositiveIntegerField(default=0)
 	comment = models.TextField(blank=True)
+	postinfo = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
 
 	def __str__(self):
@@ -142,9 +146,10 @@ class Section(models.Model):
 		return shuffle_dict
 
 	# other restrictions
-	allowed_attempts = models.PositiveIntegerField("Number of attempts allowed per question",default=0)
+	allowed_attempts = models.IntegerField("Number of attempts allowed per question",default=0)
 		# if allowed_attempts is 0, student will have infinite attempts but attempt status will not be shown
-		# otherwise attempt status will be shown
+		# if allowed_attempts is negative, student will have infinite attempts and attempt status will be shown after every submit
+		# if allowed_attempts is a positive integer n, student will have n attempts and attempt status will be shown after every submit
 	show_correct_answer = models.BooleanField("Should correct answer be shown after attempting a question?",default=False)
 		# if show_correct_answer is True and allowed_attempts is not 0,
 		# student will be shown correct answer after exhausting all attempts
@@ -174,6 +179,7 @@ class Question(models.Model):
 	title = models.CharField(max_length=120,blank=True)
 	text = models.TextField(blank=True)
 	hint = models.TextField(blank=True)
+	solution = models.TextField(blank=True)
 #	qtype = models.CharField("Question Type",max_length=8,choices=QUESTION_TYPE)
 
 	def __str__(self):
