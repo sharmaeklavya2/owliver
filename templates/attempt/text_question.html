@@ -1,0 +1,8 @@
+{% extends 'attempt/question.html' %}
+
+{% block action_url %}{% url 'main:submit' answer.id %}{% endblock %}
+
+{% block input_block %}
+	<input type="text" name="response" value="{{child_answer.response}}" />
+	<p>Case-insensitive: {{child_question.ignore_case}}</p>
+{% endblock %}

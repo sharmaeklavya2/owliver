@@ -319,7 +319,9 @@ class Answer(models.Model):
 				pass
 		raise Answer.TypelessAnswer()
 
-	def get_question(self):
+	def get_typed_question(self):
+		return self.get_child_answer().get_typed_question()
+	def get_generic_question(self):
 		return self.get_child_answer().get_generic_question()
 	def attempt_status(self):
 		# should return True for correct answer, False for wrong answer and None for not attempted
