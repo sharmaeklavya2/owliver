@@ -11,7 +11,6 @@ if BASE_DIR not in sys.path:
 	sys.path.append(BASE_DIR)
 
 import random
-from main.models import ExamAnswerSheet, SectionAnswerSheet, Answer, TextAnswer, McqAnswer
 import custom_exceptions
 
 def add_answer(question,sas,shuffle_options=None):
@@ -21,16 +20,16 @@ def add_answer(question,sas,shuffle_options=None):
 	"""
 	answer = Answer(section_answer_sheet=sas)
 	answer.save()
-	# create child answer which is bound to question's child
-	child_question = question.get_child_question()
-	qtype = child_question.get_qtype()
+	# create special answer which is bound to question's specialization
+	special_question = question.get_special_question()
+	qtype = special_question.get_qtype()
 	if qtype=="text":
-		child_answer = TextAnswer(text_question=child_question, answer=answer)
+		special_answer = TextAnswer(special_question=special_question, answer=answer)
 	elif qtype=="mcq":
-		child_answer = McqAnswer(mcq_question=child_question, answer=answer)
+		special_answer = McqAnswer(special_question=special_question, answer=answer)
 	else:
 		raise custom_exceptions.QuestionTypeNotImplemented
-	child_answer.save()
+	special_answer.save()
 
 def add_sas(section,eas,shuffle_questions=None,shuffle_options=None):
 	"""
@@ -70,3 +69,30 @@ def add_eas(exam,user,shuffle_sections=None,shuffle_questions=None,shuffle_optio
 		sections = list(exam.section_set.order_by('id'))
 	for section in sections:
 		add_sas(section,eas,shuffle_questions,shuffle_options)
+
+if __name__=="__main__":
+	os.environ.setdefault('DJANGO_SETTINGS_MODULE','owliver.settings')
+	print("Setting up Django ...")
+	import django
+	django.setup()
+
+from main.models import Exam, ExamAnswerSheet, SectionAnswerSheet, Answer, TextAnswer, McqAnswer
+from django.contrib.auth.models import User
+import sys
+
+def main(exam_name,username):
+	exam = Exam.objects.get(name=exam_name)
+	user = User.objects.get(username=username)
+	add_eas(exam,user)
+
+if __name__=="__main__":
+	if len(sys.argv)<=1:
+		exam_name = input("Enter exam name: ")
+	else:
+		exam_name = sys.argv[1]
+	if len(sys.argv)<=2:
+		username = input("Enter username: ")
+	else:
+		username = sys.argv[2]
+	print("Adding ExamAnswerSheet ...")
+	main(exam_name,username)

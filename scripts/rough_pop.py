@@ -5,11 +5,17 @@ from django.contrib.auth.models import User
 import datetime
 from django.utils import timezone
 
-User.objects.all().delete()
+try:
+	User.objects.get(username="eklavya").delete()
+except:
+	pass
 eklavya = User(username="eklavya")
 eklavya.save()
 
-Exam.objects.all().delete()
+try:
+	User.objects.get(name="Sample exam").delete()
+except:
+	pass
 myexam = Exam(name="Sample exam")
 myexam.save()
 mysection = Section(name="Sample section", exam=myexam, correct_marks=4, wrong_marks=-1)
@@ -32,18 +38,18 @@ mcq1.save()
 mcq2 = McqQuestion(question=ques2, multicorrect=False)
 mcq2.save()
 
-opt1a = McqOption(text="Delhi", is_correct=True, mcq_question=mcq1)
+opt1a = McqOption(text="Delhi", is_correct=True, special_question=mcq1)
 opt1a.save()
-opt1b = McqOption(text="Bombay", is_correct=False, mcq_question=mcq1)
+opt1b = McqOption(text="Bombay", is_correct=False, special_question=mcq1)
 opt1b.save()
-opt1c = McqOption(text="Kolkata", is_correct=False, mcq_question=mcq1)
+opt1c = McqOption(text="Kolkata", is_correct=False, special_question=mcq1)
 opt1c.save()
 
-opt2a = McqOption(text="New York", is_correct=False, mcq_question=mcq2)
+opt2a = McqOption(text="New York", is_correct=False, special_question=mcq2)
 opt2a.save()
-opt2b = McqOption(text="Washington DC", is_correct=True, mcq_question=mcq2)
+opt2b = McqOption(text="Washington DC", is_correct=True, special_question=mcq2)
 opt2b.save()
-opt2c = McqOption(text="Florida", is_correct=True, mcq_question=mcq2)
+opt2c = McqOption(text="Florida", is_correct=True, special_question=mcq2)
 opt2c.save()
 
 mcq1.verify_correct_options()
@@ -54,9 +60,9 @@ ans1.save()
 ans2 = Answer(section_answer_sheet=mysas)
 ans2.save()
 
-mcqans1 = McqAnswer(answer=ans1,mcq_question=mcq1)
+mcqans1 = McqAnswer(answer=ans1,special_question=mcq1)
 mcqans1.save()
-mcqans2 = McqAnswer(answer=ans2,mcq_question=mcq2)
+mcqans2 = McqAnswer(answer=ans2,special_question=mcq2)
 mcqans2.save()
 
 McqAnswerToMcqOption(mcq_answer=mcqans1, mcq_option=opt1a).save()
@@ -79,8 +85,8 @@ ans3.save()
 ans4 = Answer(section_answer_sheet=mysas)
 ans4.save()
 
-textans1 = TextAnswer(answer=ans3,text_question=textq1,response="Narendra Modi")
+textans1 = TextAnswer(answer=ans3,special_question=textq1,response="Narendra Modi")
 textans1.save()
-textans2 = TextAnswer(answer=ans4,text_question=textq2,response="H2O2")
+textans2 = TextAnswer(answer=ans4,special_question=textq2,response="H2O2")
 textans2.save()
 

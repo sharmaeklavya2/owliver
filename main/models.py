@@ -231,7 +231,7 @@ class Question(models.Model):
 		def __str__(self):
 			return "This question has no type associated with it"
 
-	def get_child_question(self):
+	def get_special_question(self):
 		for qtype in QUESTION_TYPE_DICT:
 			try:
 				return getattr(self,qtype+"question")
@@ -248,7 +248,7 @@ class Question(models.Model):
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
 	def export(self,include_solutions=True):
-		ques_dict = self.get_child_question().export()
+		ques_dict = self.get_special_question().export()
 		if self.title: ques_dict["title"] = self.title
 		if self.text: ques_dict["text"] = self.text
 		if self.hint: ques_dict["hint"] = self.hint
@@ -417,7 +417,7 @@ class Answer(models.Model):
 		def __str__(self):
 			return "This answer has no type associated with it"
 
-	def get_child_answer(self):
+	def get_special_answer(self):
 		for qtype in QUESTION_TYPE_DICT:
 			try:
 				return getattr(self,qtype+"answer")
@@ -426,33 +426,73 @@ class Answer(models.Model):
 		raise Answer.TypelessAnswer()
 
 	def get_typed_question(self):
-		return self.get_child_answer().get_typed_question()
+		return self.get_special_answer().get_typed_question()
 	def get_generic_question(self):
-		return self.get_child_answer().get_generic_question()
+		return self.get_special_answer().get_generic_question()
 	def attempt_status(self):
 		# should return True for correct answer, False for wrong answer and None for not attempted
-		return self.get_child_answer().attempt_status()
+		return self.get_special_answer().attempt_status()
 	def get_section(self):
-		return self.get_child_answer().get_section()
+		return self.get_special_answer().get_section()
 	def is_attemptable(self):
 		# whether attempts is less than allowed_attempts
 		allatt = self.section_answer_sheet.section.allowed_attempts
 		return allatt<=0 or self.attempts<allatt
 	def __str__(self):
-		return self.get_qtype()+" : "+str(self.get_child_answer())
+		return self.get_qtype()+" : "+str(self.get_special_answer())
+
+# Specialized Question Base Class ==================================================================
+
+class SpecialQuestion:
+	"""Base class for specialized questions"""
+	def get_section(self):
+		return self.question.section
+
+	def __str__(self):
+		return str(self.question)
+	def get_qtype(self):
+		return ""
+	def export(self):
+		return {}
+
+class SpecialAnswer:
+	"""Base class for specialized answers"""
+	def get_section(self):
+		return self.special_question.get_section()
+	def get_qtype(self):
+		return self.special_question.get_qtype()
+	def get_typed_question(self):
+		return self.special_question
+	def get_generic_question(self):
+		return self.special_question.question
+	def verify_section(self):
+		if self.answer.section_answer_sheet.section != self.get_section():
+			raise AnswerHasInvalidSection()
+
+	def __str__(self):
+		return ""
+	def attempt_status(self):
+		pass
 
 # MCQ questions ====================================================================================
 
-class McqQuestion(models.Model):
+class McqQuestion(models.Model, SpecialQuestion):
 	question = models.OneToOneField(Question)
 	multicorrect = models.BooleanField(default=False)
 
-	def get_qtype(self):
-		return "mcq"
-	def get_section(self):
-		return self.question.section
 	def __str__(self):
 		return str(self.question)
+	def get_qtype(self):
+		return "mcq"
+	def export(self):
+		mcq_ques_dict = {}
+		if self.multicorrect:
+			mcq_ques_dict["type"]="mmcq"
+		else:
+			mcq_ques_dict["type"]="mcq"
+		mcq_ques_dict["options"] = [option.export() for option in self.mcqoption_set.order_by('id')]
+		return mcq_ques_dict
+
 	def no_of_correct_options(self):
 		return self.mcqoption_set.filter(is_correct=True).count()
 
@@ -471,25 +511,18 @@ class McqQuestion(models.Model):
 		elif self.multicorrect==False and correct_options>1:
 			raise McqQuestion.TooManyCorrectOptions()
 
-	def export(self):
-		mcq_ques_dict = {}
-		if self.multicorrect:
-			mcq_ques_dict["type"]="mmcq"
-		else:
-			mcq_ques_dict["type"]="mcq"
-		mcq_ques_dict["options"] = [option.export() for option in self.mcqoption_set.order_by('id')]
-		return mcq_ques_dict
-
 class McqOption(models.Model):
 	title = models.CharField(max_length=30,blank=True)
 	text = models.TextField(blank=False)
 #	sno = models.PositiveIntegerField(default=0)
 	is_correct = models.BooleanField(default=False)
-	mcq_question = models.ForeignKey(McqQuestion)
+	special_question = models.ForeignKey(McqQuestion)
 
 	def option_text(self):
 		if self.title: return self.title
 		else: return self.text
+	def __str__(self):
+		return str(self.special_question) + " : " + self.option_text()
 
 	def export(self):
 		if not self.title and not self.is_correct:
@@ -500,40 +533,27 @@ class McqOption(models.Model):
 			if self.is_correct: mydict["is_correct"] = self.is_correct
 			return mydict
 
-	def __str__(self):
-		return str(self.mcq_question) + " : " + self.option_text()
-
-class McqAnswer(models.Model):
+class McqAnswer(models.Model, SpecialAnswer):
 	answer = models.OneToOneField(Answer)
-	mcq_question = models.ForeignKey(McqQuestion)
+	special_question = models.ForeignKey(McqQuestion)
 	chosen_options = models.ManyToManyField(McqOption,through="McqAnswerToMcqOption")
 
-	def verify_options(self):
-		# returns True if all options belong to this question and False otherwise
-		good_options = self.chosen_options.filter(mcq_question=self.mcq_question).count()
-		all_options = self.chosen_options.count()
-		return good_options == all_options
-
+	def __str__(self):
+		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
 	def attempt_status(self):
 		total_options = self.chosen_options.count()
 		if total_options==0:
 			return None
 		wrong_options = self.chosen_options.filter(is_correct=False).count()
 		return wrong_options == 0
-	def get_section(self):
-		return self.mcq_question.get_section()
-	def get_qtype(self):
-		return self.mcq_question.get_qtype()
-	def get_typed_question(self):
-		return self.mcq_question
-	def get_generic_question(self):
-		return self.mcq_question.question
-	def __str__(self):
-		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
 
+	def verify_options(self):
+		# returns True if all options belong to this question and False otherwise
+		good_options = self.chosen_options.filter(special_question=self.special_question).count()
+		all_options = self.chosen_options.count()
+		return good_options == all_options
 	def save(self,*args,**kwargs):
-		if self.answer.section_answer_sheet.section != self.get_section():
-			raise AnswerHasInvalidSection()
+		self.verify_section()
 #		super().save(*args,**kwargs)
 		super(McqAnswer,self).save(*args,**kwargs)
 
@@ -542,14 +562,14 @@ class McqAnswerToMcqOption(models.Model):
 	mcq_option = models.ForeignKey(McqOption)
 
 	def save(self,*args,**kwargs):
-		if self.mcq_answer.mcq_question != self.mcq_option.mcq_question:
+		if self.mcq_answer.special_question != self.mcq_option.special_question:
 			raise McqOptionDoesNotMatchQuestion()
 #		super().save(*args,**kwargs)
 		super(McqAnswerToMcqOption,self).save(*args,**kwargs)
 
 # Text Questions ===================================================================================
 
-class TextQuestion(models.Model):
+class TextQuestion(models.Model, SpecialQuestion):
 	question = models.OneToOneField(Question)
 	ignore_case = models.BooleanField(default=True)
 	use_regex = models.BooleanField(default=False)
@@ -557,10 +577,18 @@ class TextQuestion(models.Model):
 
 	def get_qtype(self):
 		return "text"
-	def get_section(self):
-		return self.question.section
 	def __str__(self):
 		return str(self.question)
+	def export(self):
+		text_ques_dict = {}
+		if self.use_regex:
+			text_ques_dict["type"]="regex"
+		else:
+			text_ques_dict["type"]="text"
+		text_ques_dict["answer"] = self.correct_answer
+		text_ques_dict["ignore_case"] = self.ignore_case
+		return text_ques_dict
+
 	def check_response(self,response):
 		if self.use_regex:
 			if self.ignore_case: flags=0
@@ -572,38 +600,19 @@ class TextQuestion(models.Model):
 			else:
 				return response==self.correct_answer
 
-	def export(self):
-		text_ques_dict = {}
-		if self.use_regex:
-			text_ques_dict["type"]="regex"
-		else:
-			text_ques_dict["type"]="text"
-		text_ques_dict["answer"] = self.correct_answer
-		text_ques_dict["ignore_case"] = self.ignore_case
-		return text_ques_dict
-
-class TextAnswer(models.Model):
+class TextAnswer(models.Model, SpecialAnswer):
 	answer = models.OneToOneField(Answer)
-	text_question = models.ForeignKey(TextQuestion)
+	special_question = models.ForeignKey(TextQuestion)
 	response = models.TextField(blank=True)
 
-	def attempt_status(self):
-		if self.response:
-			return self.text_question.check_response(self.response)
-		else:
-			return None
-	def get_section(self):
-		return self.text_question.get_section()
-	def get_qtype(self):
-		return self.text_question.get_qtype()
-	def get_typed_question(self):
-		return self.text_question
-	def get_generic_question(self):
-		return self.text_question.question
 	def __str__(self):
 		return self.response
+	def attempt_status(self):
+		if self.response:
+			return self.special_question.check_response(self.response)
+		else:
+			return None
 	def save(self,*args,**kwargs):
-		if self.answer.section_answer_sheet.section != self.get_section():
-			raise AnswerHasInvalidSection()
+		self.verify_section()
 #		super().save(*args,**kwargs)
 		super(TextAnswer,self).save(*args,**kwargs)

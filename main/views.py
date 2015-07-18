@@ -80,9 +80,9 @@ def fill_context_dict_using_answer(current_user,answer):
 #		raise ExamNotStarted()
 	section = sas.section
 	exam = section.exam
-	child_question = answer.get_typed_question()
-	child_answer = answer.get_child_answer()
-	question = child_question.question
+	special_question = answer.get_typed_question()
+	special_answer = answer.get_special_answer()
+	question = special_question.question
 
 	qset = sas.answer_set.filter(id__lt=answer.id)
 	qno = qset.count()+1
@@ -97,15 +97,15 @@ def fill_context_dict_using_answer(current_user,answer):
 	else:
 		context_dict["nextaid"] = None
 
-	context_dict["qtype"] = child_question.get_qtype()
+	context_dict["qtype"] = special_question.get_qtype()
 	context_dict["sas"] = sas
 	context_dict["eas"] = eas
 	context_dict["section"] = section
 	context_dict["exam"] = exam
 	context_dict["question"] = question
-	context_dict["child_question"] = child_question
+	context_dict["special_question"] = special_question
 	context_dict["answer"] = answer
-	context_dict["child_answer"] = child_answer
+	context_dict["special_answer"] = special_answer
 	return context_dict
 
 @login_required
@@ -130,20 +130,20 @@ def submit(request,aid):
 
 	# save response to database
 	qtype = context_dict["qtype"]
-	child_answer = context_dict["child_answer"]
+	special_answer = context_dict["special_answer"]
 	if qtype=="text":
 		if "response" not in request.POST:
 			raise InvalidFormData()
-		child_answer.response=request.POST["response"]
+		special_answer.response=request.POST["response"]
 	elif qtype=="mcq":
-		child_answer.chosen_options.clear()
+		special_answer.chosen_options.clear()
 		chosen_option_ids = request.POST.getlist("response")
 		for option_id in chosen_option_ids:
-			link = McqAnswerToMcqOption(mcq_answer=child_answer,mcq_option_id=option_id)
+			link = McqAnswerToMcqOption(mcq_answer=special_answer,mcq_option_id=option_id)
 			link.save()
 	else:
 		raise QuestionTypeNotImplemented(qtype)
-	child_answer.save()
+	special_answer.save()
 
 	# redirect
 	if "submit" in request.POST:

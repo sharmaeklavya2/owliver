@@ -15,13 +15,13 @@ from scripts import validation
 
 from custom_exceptions import QuestionTypeNotImplemented
 
-def add_options(mcq_question_in_db,options_list,correct_status):
+def add_options(special_question_in_db,options_list,correct_status):
 	"""
-	Adds all options in options_list to mcq_question_in_db
+	Adds all options in options_list to special_question_in_db
 	Note that elements of options_list are not instances of models.McqOption,
 	they are objects which match the mcq_option JSON schema.
 	This function makes a models.McqOption instance for each option and saves that to database.
-	The mcq_question ForeignKey of those instances will point to mcq_question_in_db.
+	The special_question ForeignKey of those instances will point to special_question_in_db.
 	If correct_status is True, all options are added with is_correct BooleanField set to True.
 	If correct_status is False, all options are added with is_correct BooleanField set to False.
 	Otherwise, is_correct BooleanField of options is derived from the "is_correct" key of each object, if it is a dict;
@@ -29,7 +29,7 @@ def add_options(mcq_question_in_db,options_list,correct_status):
 	"""
 	boolean_correct_status= (correct_status==True or correct_status==False)
 	for option in options_list:
-		mcq_option = McqOption(mcq_question=mcq_question_in_db)
+		mcq_option = McqOption(special_question=special_question_in_db)
 		if boolean_correct_status:
 			mcq_option.is_correct = correct_status
 		if type(option)==str:
