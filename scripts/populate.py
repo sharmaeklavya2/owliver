@@ -96,6 +96,7 @@ def add_section(exam_in_db,section_dict):
 	properties_to_add=["name","info","comment","postinfo",
 		"allowed_attempts",
 		"show_correct_answer",
+		"show_solution",
 		"max_questions_to_attempt"]
 	section = Section()
 	for key in properties_to_add:

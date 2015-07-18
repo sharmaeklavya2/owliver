@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from datetime import timedelta, datetime
 from django.utils import timezone
@@ -72,24 +72,48 @@ class Exam(models.Model):
 	author = models.TextField(blank=True)
 	comment = models.TextField(blank=True)
 	postinfo = models.TextField(blank=True)
-	owner = models.ForeignKey(User,null=True)
 	tags = models.ManyToManyField(Tag)
+
+	# permissions
+	# The superuser has all permissions
+	owner = models.ForeignKey(User,null=True)
+	# the person who owns the Exam. He can make any changes to it.
+	# This exam will be listed on the owner's page
+	solutions_group = models.ForeignKey(Group, null=True, related_name="solexam_set")
+	# Group of users who are authorized to view solutions and postinfo after taking this test
+	# If it is null, anyone can see solutions after attempting test
+	attempt_group = models.ForeignKey(Group, null=True, related_name="attexam_set")
+	# Group of users who are authorized to take this test
+	# If it is null, anyone can take the test
 
 	def __str__(self):
 		return self.name
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
-	def export(self):
+	def export(self,include_solutions=True):
 		exam_dict = {"name":self.name}
 		if self.info: exam_dict["info"] = self.info
 		if self.comment: exam_dict["comment"] = self.comment
+		if include_solutions and self.postinfo: exam_dict["postinfo"] = self.postinfo
 		if self.time_limit!=timedelta(0): exam_dict["time_limit"] = self.time_limit.total_seconds()
 		if self.shuffle_sections: exam_dict["shuffle_sections"] = self.shuffle_sections
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: exam_dict["tags"] = tags_list
-		sections_list = [section.export() for section in self.section_set.order_by('id')]
+		sections_list = [section.export(include_solutions) for section in self.section_set.order_by('id')]
 		if sections_list: exam_dict["sections"] = sections_list
 		return exam_dict
+
+	def sum_of_section_methods(self,method,*args):
+		# finds sum(section.method(*args)) for every section in self
+		count=0
+		for section in self.section_set.all():
+			count+= (getattr(section,method))(*args)
+		return count
+
+	def number_of_questions(self):
+		return self.sum_of_section_methods("number_of_questions")
+	def max_marks(self):
+		return self.sum_of_section_methods("max_marks")
 
 class Section(models.Model):
 	name = models.CharField(max_length=50,blank=False)
@@ -153,15 +177,19 @@ class Section(models.Model):
 	show_correct_answer = models.BooleanField("Should correct answer be shown after attempting a question?",default=False)
 		# if show_correct_answer is True and allowed_attempts is not 0,
 		# student will be shown correct answer after exhausting all attempts
+	show_solution = models.BooleanField("Should solution be shown after attempting a question?",default=False)
+		# Similar to show_correct_answer
 	max_questions_to_attempt = models.PositiveIntegerField("Maximum number of questions a student is allowed to attempt",default=0)
 		# if this value is 0, all questions can be attempted
 
-	def export(self):
+	def export(self,include_solutions=True):
 		sec_dict = {"name":self.name}
 		if self.info: sec_dict["info"] = self.info
 		if self.comment: sec_dict["comment"] = self.comment
+		if include_solutions and self.postinfo: sec_dict["postinfo"] = self.postinfo
 		if self.allowed_attempts!=0: sec_dict["allowed_attempts"] = self.allowed_attempts
 		if self.show_correct_answer!=False: sec_dict["show_correct_answer"] = self.show_correct_answer
+		if self.show_solution!=False: sec_dict["show_solution"] = self.show_solution
 		if self.max_questions_to_attempt!=0: sec_dict["max_questions_to_attempt"] = self.max_questions_to_attempt
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: sec_dict["tags"] = tags_list
@@ -171,9 +199,15 @@ class Section(models.Model):
 		if unlock_dict: sec_dict["unlock"] = unlock_dict
 		shuffle_dict = self.export_shuffle()
 		if shuffle_dict: sec_dict["shuffle"] = shuffle_dict
-		questions_list = [question.export() for question in self.question_set.order_by('id')]
+		questions_list = [question.export(include_solutions) for question in self.question_set.order_by('id')]
 		if questions_list: sec_dict["questions"] = questions_list
 		return sec_dict
+
+	def number_of_questions(self):
+		return self.question_set.count()
+
+	def max_marks(self):
+		return self.correct_marks*self.question_set.count()
 
 class Question(models.Model):
 	title = models.CharField(max_length=120,blank=True)
@@ -213,12 +247,13 @@ class Question(models.Model):
 
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
-	def export(self):
+	def export(self,include_solutions=True):
 		ques_dict = self.get_child_question().export()
 		if self.title: ques_dict["title"] = self.title
 		if self.text: ques_dict["text"] = self.text
 		if self.hint: ques_dict["hint"] = self.hint
 		if self.comment: ques_dict["comment"] = self.comment
+		if include_solutions and self.solution: ques_dict["solution"] = self.solution
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: ques_dict["tags"] = tags_list
 		return ques_dict
@@ -284,6 +319,32 @@ class ExamAnswerSheet(models.Model):
 		else:
 			return self.end_time - self.start_time
 
+	def sum_of_sas_methods(self,method,*args):
+		# finds sum(sas.method(*args)) for every sas in self
+		count=0
+		for sas in self.sectionanswersheet_set.all():
+			count+= (getattr(sas,method))(*args)
+		return count
+
+	def attempt_status_number(self,att_stat):
+		return self.sum_of_sas_methods("attempt_status_number",att_stat)
+
+	def attempted_number(self):
+		return self.sum_of_sas_methods("attempted_number")
+
+	def total_questions(self):
+		return self.sum_of_sas_methods("total_questions")
+
+	def can_attempt_more(self):
+		# returns whether user can attempt more questions from this set (by checking max_questions_to_attempt)
+		for sas in self.sectionanswersheet_set.all():
+			if sas.can_attempt_more():
+				return true
+		return false
+
+	def total_marks(self):
+		return self.sum_of_sas_methods("total_marks")
+
 class SectionAnswerSheet(models.Model):
 	# Answer Objects FK to this model
 	section = models.ForeignKey(Section)
@@ -296,10 +357,55 @@ class SectionAnswerSheet(models.Model):
 #		super().save(*args,**kwargs)
 		super(SectionAnswerSheet,self).save(*args,**kwargs)
 
+	def attempt_status_number(self,att_stat):
+		# finds the number of answers which have att_stat as their attempt_status
+		count=0
+		for ans in self.answer_set.all():
+			if ans.attempt_status()==att_stat:
+				count+=1
+		return count
+
+	def attempted_number(self):
+		# finds the number of attempted answers
+		count=0
+		for ans in self.answer_set.all():
+			att_stat = ans.attempt_status()
+			if att_stat==True or att_stat==False:
+				count+=1
+		return count
+
+	def total_questions(self):
+		return self.answer_set.count()
+
+	def can_attempt_more(self):
+		# returns whether user can attempt more questions from this set (by checking max_questions_to_attempt)
+		mqta = self.section.max_questions_to_attempt
+		attnum = self.attempted_number()
+		return (mqta==0 and attnum<self.total_questions()) or attnum<mqta
+
+	def total_marks(self):
+		corr = self.section.correct_marks
+		wrong = self.section.wrong_marks
+		na = self.section.na_marks
+		hd = self.section.hint_deduction
+		marks = 0
+		for ans in self.answer_set.all():
+			if ans.viewed_hint:
+				marks-= hd
+			att_stat = ans.attempt_status()
+			if att_stat==True:
+				marks+= corr
+			elif att_stat==False:
+				marks+= wrong
+			else:
+				marks+= na
+		return marks
+
 class Answer(models.Model):
 	section_answer_sheet = models.ForeignKey(SectionAnswerSheet)
 #	question = models.ForeignKey(Question)
 	viewed_hint = models.BooleanField(default=False)
+	attempts = models.PositiveIntegerField(default=0)
 
 	def get_qtype(self):
 		for qtype in QUESTION_TYPE_DICT:
@@ -328,6 +434,10 @@ class Answer(models.Model):
 		return self.get_child_answer().attempt_status()
 	def get_section(self):
 		return self.get_child_answer().get_section()
+	def is_attemptable(self):
+		# whether attempts is less than allowed_attempts
+		allatt = self.section_answer_sheet.section.allowed_attempts
+		return allatt<=0 or self.attempts<allatt
 	def __str__(self):
 		return self.get_qtype()+" : "+str(self.get_child_answer())
 

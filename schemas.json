@@ -173,6 +173,7 @@
 			"allowed_attempts":
 			{"type":"integer","minimum":0},
 			"show_correct_answer":{"type":"boolean"},
+			"show_solution":{"type":"boolean"},
 			"max_questions_to_attempt":
 			{"type":"integer","minimum":0},
 			"marking_scheme":
