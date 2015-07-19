@@ -84,19 +84,46 @@ def fill_context_dict_using_answer(current_user,answer):
 	special_answer = answer.get_special_answer()
 	question = special_question.question
 
+	qset = eas.sectionanswersheet_set.filter(id__lt=sas.id)
+	# qset means queryset
+	sasno = qset.count()+1
+	context_dict["sasno"] = sasno
+	# Check next and prev questions in same section
+	if sasno>1:
+		prevsid = qset.last().id
+	else:
+		prevsid = None
+	qset = eas.sectionanswersheet_set.filter(id__gt=sas.id)
+	if qset.exists():
+		nextsid = qset.first().id
+	else:
+		nextsid = None
+
 	qset = sas.answer_set.filter(id__lt=answer.id)
+	# qset means queryset, qno means question number
 	qno = qset.count()+1
 	context_dict["qno"] = qno
+	# Check next and prev questions in same section
 	if qno>1:
-		context_dict["prevaid"] = qset.last().id
+		prevaid = qset.last().id
 	else:
-		context_dict["prevaid"] = None
+		prevaid = None
 	qset = sas.answer_set.filter(id__gt=answer.id)
-	if qset.count()>0:
-		context_dict["nextaid"] = qset.first().id
+	if qset.exists():
+		nextaid = qset.first().id
 	else:
-		context_dict["nextaid"] = None
+		nextaid = None
 
+	# Check next and previous questions in different sections if not found in same section
+	if prevaid==None and prevsid!=None:
+		prevaid = SectionAnswerSheet.objects.get(id=prevsid).answer_set.last().id
+	if nextaid==None and nextsid!=None:
+		nextaid = SectionAnswerSheet.objects.get(id=nextsid).answer_set.first().id
+
+	context_dict["prevsid"] = prevsid
+	context_dict["nextsid"] = nextsid
+	context_dict["prevaid"] = prevaid
+	context_dict["nextaid"] = nextaid
 	context_dict["qtype"] = special_question.get_qtype()
 	context_dict["sas"] = sas
 	context_dict["eas"] = eas
