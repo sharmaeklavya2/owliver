@@ -1,0 +1,21 @@
+{% extends 'accounts/base.html' %}
+
+{% block title_block %}Owliver - profile{% endblock %}
+{% block h1_block %}{{puser.username}}{% endblock %}
+
+{% block body_block %}
+<table>
+	<tr><td>Username:</td><td>{{puser.username}}</td></tr>
+	<tr><td>Name:</td><td>{{puser.get_full_name}}</td></tr>
+</table>
+{% if user.groups.exists %}
+	<p>These are the groups {{puser}} is in:</p>
+	<ol>
+		{% for group in puser.groups.all %}
+		<li>{{group.name}}</li>
+		{% endfor %}
+	</ol>
+{% else %}
+	<p>{{puser}} is not a part of any group.</p>
+{% endif %}
+{% endblock %}

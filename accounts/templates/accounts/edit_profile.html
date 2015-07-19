@@ -1,0 +1,19 @@
+{% extends 'accounts/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}Owliver - Edit profile{% endblock %}
+{% block h1_block %}Edit your Profile{% endblock %}
+
+{% block body_block %}
+<p style="color:red">{{ep_error}}</p>
+<p style="color:red">{{ep_success}}</p>
+<form method="POST" action="." >
+	{% csrf_token %}
+	{% for field in form.visible_fields %}
+		{{field.label_tag}}
+		{{field.errors}}<br />
+		{{field}}<br/>
+	{% endfor %}
+	<input type="submit" name="submit" value="Submit" />
+</form>
+{% endblock %}

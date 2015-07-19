@@ -10,10 +10,10 @@
 	{% csrf_token %}
 	Username:<br />
 	<input type="hidden" name="next" value="{{next}}" />
-	<input type="text" name="username" value="{{username}}" />
+	<input type="text" name="username" value="{{username}}" required="required" />
 	<br />
 	Password:<br />
-	<input type="password" name="password" />
+	<input type="password" name="password" required="required" />
 	<br />
 	<button type="submit" >Login</button>
 </form>
