@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block h1_block %}{{exam.name}}{% endblock %}
+
+{% block body_block %}
+	<p>{{exam.info}}</p>
+	{% if infinite_time %}
+		<p>There is no time limit</p>
+	{% else %}
+		<p>Time limit: {{exam.time_limit}}</p>
+	{% endif %}
+	{% if user.is_authenticated %}
+		{% if can_attempt %}
+			<form method="POST" action="{% url 'main:add_eas' exam.id %}" >
+				{% csrf_token %}
+				<input type="submit" name="start" value="Start Exam" /><br />
+				<input type="submit" name="later" value="Attempt Later" />
+			</form>
+		{% else %}
+			<p>The exam's owner has not allowed you to attempt this exam.</p>
+		{% endif %}
+	{% else %}
+		<p>You must be <a href="{% url 'accounts:login' %}?next={{request.path}}">logged in</a> to give this test</p>
+	{% endif %}
+{% endblock %}

@@ -30,6 +30,7 @@ def add_answer(question,sas,shuffle_options=None):
 	else:
 		raise custom_exceptions.QuestionTypeNotImplemented
 	special_answer.save()
+	return answer
 
 def add_sas(section,eas,shuffle_questions=None,shuffle_options=None):
 	"""
@@ -48,6 +49,7 @@ def add_sas(section,eas,shuffle_questions=None,shuffle_options=None):
 		questions = list(section.question_set.order_by('id'))
 	for ques in questions:
 		add_answer(ques,sas,shuffle_options)
+	return sas
 
 def add_eas(exam,user,shuffle_sections=None,shuffle_questions=None,shuffle_options=None):
 	"""
@@ -69,6 +71,7 @@ def add_eas(exam,user,shuffle_sections=None,shuffle_questions=None,shuffle_optio
 		sections = list(exam.section_set.order_by('id'))
 	for section in sections:
 		add_sas(section,eas,shuffle_questions,shuffle_options)
+	return eas
 
 if __name__=="__main__":
 	os.environ.setdefault('DJANGO_SETTINGS_MODULE','owliver.settings')

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+	{% if exam_list %}
+		<ol>
+		{% for exam in exam_list %}
+			<li><a href="{% url 'main:exam_cover' exam.id %}">{{exam.name}}</a></li>
+		{% endfor %}
+		</ol>
+	{% else %}
+		<p>No exams present.</p>
+	{% endif %}
+{% endblock %}

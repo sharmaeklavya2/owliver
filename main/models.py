@@ -83,8 +83,10 @@ class Exam(models.Model):
 	# Group of users who are authorized to view solutions and postinfo after taking this test
 	# If it is null, anyone can see solutions after attempting test
 	attempt_group = models.ForeignKey(Group, null=True, related_name="attexam_set")
-	# Group of users who are authorized to take this test
-	# If it is null, anyone can take the test
+	# Group of users who can make an eas of this exam themselves
+	# If it is null, anyone can make an eas of this exam themselves
+	# Anyone with an eas of this exam can attempt this exam
+	# regardless of whether they are in this group or not
 
 	def __str__(self):
 		return self.name
@@ -103,17 +105,19 @@ class Exam(models.Model):
 		if sections_list: exam_dict["sections"] = sections_list
 		return exam_dict
 
-	def sum_of_section_methods(self,method,*args):
-		# finds sum(section.method(*args)) for every section in self
-		count=0
-		for section in self.section_set.all():
-			count+= (getattr(section,method))(*args)
-		return count
+	def can_attempt(self,user):
+		return user.is_superuser or self.attempt_group==None or user.groups.filter(id=self.attempt_group.id).exists()
+	def can_view_solutions(self,user):
+		return user.is_superuser or self.solutions_group==None or user.groups.filter(id=self.solutions_group.id).exists()
 
 	def number_of_questions(self):
-		return self.sum_of_section_methods("number_of_questions")
+		return Question.objects.filter(section__in=self.section_set.all()).count()
 	def max_marks(self):
-		return self.sum_of_section_methods("max_marks")
+		# finds sum(section.method(*args)) for every section in self
+		marks=0
+		for section in self.section_set.all():
+			marks+= section.max_marks()
+		return marks
 
 class Section(models.Model):
 	name = models.CharField(max_length=50,blank=False)
@@ -205,7 +209,6 @@ class Section(models.Model):
 
 	def number_of_questions(self):
 		return self.question_set.count()
-
 	def max_marks(self):
 		return self.correct_marks*self.question_set.count()
 
@@ -270,9 +273,17 @@ class ExamAnswerSheet(models.Model):
 	TIMER_ERROR = 0			# error
 	TIMER_NOT_SET = 1		# timer not set (start_time is None)
 	TIMER_NOT_STARTED = 2	# timer set but exam not started (start_time is in the future)
-	TIMER_IN_USE = 3		# exam in progress
+	TIMER_IN_PROGRESS = 3	# exam in progress
 	TIMER_ENDED = 4			# exam ended
 	DURATIONLESS_TIMER_STATII = (TIMER_ERROR, TIMER_NOT_SET, TIMER_NOT_STARTED)
+
+	STATUS_STR_DICT={
+		TIMER_ERROR: "Error",
+		TIMER_NOT_SET: "Start time not set",
+		TIMER_NOT_STARTED: "Starts at ",
+		TIMER_IN_PROGRESS: "In progress",
+		TIMER_ENDED: "Ended",
+	}
 
 	def set_timer(self,start_time=None):
 		if start_time==None:
@@ -294,56 +305,70 @@ class ExamAnswerSheet(models.Model):
 			if now < self.start_time:
 				return ExamAnswerSheet.TIMER_NOT_STARTED
 			else:
-				return ExamAnswerSheet.TIMER_IN_USE
+				return ExamAnswerSheet.TIMER_IN_PROGRESS
 		if self.end_time < self.start_time:
 			return ExamAnswerSheet.TIMER_ERROR
 		if now < self.start_time:
 			return ExamAnswerSheet.TIMER_NOT_STARTED
 		elif now < self.end_time:
-			return ExamAnswerSheet.TIMER_IN_USE
+			return ExamAnswerSheet.TIMER_IN_PROGRESS
 		else:
 			return ExamAnswerSheet.TIMER_ENDED
+
+	def get_timer_status_str(self):
+		timer_status = self.get_timer_status()
+		try:
+			result_str = ExamAnswerSheet.STATUS_STR_DICT[timer_status]
+			if(timer_status==ExamAnswerSheet.TIMER_NOT_STARTED):
+				result_str = result_str + str(self.start_time)
+		except KeyError:
+			return "Error"
+		return result_str
 
 	def get_attempt_duration(self):
 		"""
 		max duration of time which a student has given to this exam
 		TIMER_ERROR, TIMER_NOT_SET, TIMER_NOT_STARTED : return None
-		TIMER_IN_USE : return timezone.now() - self.start_time
+		TIMER_IN_PROGRESS : return timezone.now() - self.start_time
 		TIMER_ENDED	: return self.end_time - self.start_time
 		"""
 		timer_status = self.get_timer_status()
 		if timer_status in ExamAnswerSheet.DURATIONLESS_TIMER_STATII:
 			return None
-		if timer_status == ExamAnswerSheet.TIMER_IN_USE:
+		if timer_status == ExamAnswerSheet.TIMER_IN_PROGRESS:
 			return timezone.now() - self.start_time
 		else:
 			return self.end_time - self.start_time
 
-	def sum_of_sas_methods(self,method,*args):
-		# finds sum(sas.method(*args)) for every sas in self
-		count=0
+	def result_freq(self):
+		res_list = [0]*5
 		for sas in self.sectionanswersheet_set.all():
-			count+= (getattr(sas,method))(*args)
-		return count
+			sas_res_tup = sas.result_freq()
+			for i in range(len(res_list)):
+				res_list[i]+=sas_res_tup[i]
+		return tuple(res_list)
 
-	def attempt_status_number(self,att_stat):
-		return self.sum_of_sas_methods("attempt_status_number",att_stat)
+	def attempt_freq(self):
+		att = 0
+		na = 0
+		hints = 0
+		for sas in self.sectionanswersheet_set.all():
+			sas_att, sas_na, sas_hints = sas.attempt_freq()
+			att+= sas_att
+			na+= sas_na
+			hints+= sas_hints
+		return (att,na,hints)
 
-	def attempted_number(self):
-		return self.sum_of_sas_methods("attempted_number")
-
-	def total_questions(self):
-		return self.sum_of_sas_methods("total_questions")
-
+	def number_of_questions(self):
+		return self.exam.number_of_questions()
+	def number_of_answers(self):
+		return Answer.objects.filter(section_answer_sheet__in=self.sectionanswersheet_set.all()).count()
 	def can_attempt_more(self):
-		# returns whether user can attempt more questions from this set (by checking max_questions_to_attempt)
+		# returns whether user can attempt more questions from this set (by checking max_questions_to_attempt per section)
 		for sas in self.sectionanswersheet_set.all():
 			if sas.can_attempt_more():
-				return true
-		return false
-
-	def total_marks(self):
-		return self.sum_of_sas_methods("total_marks")
+				return True
+		return False
 
 class SectionAnswerSheet(models.Model):
 	# Answer Objects FK to this model
@@ -357,49 +382,50 @@ class SectionAnswerSheet(models.Model):
 #		super().save(*args,**kwargs)
 		super(SectionAnswerSheet,self).save(*args,**kwargs)
 
-	def attempt_status_number(self,att_stat):
-		# finds the number of answers which have att_stat as their attempt_status
-		count=0
-		for ans in self.answer_set.all():
-			if ans.attempt_status()==att_stat:
-				count+=1
-		return count
-
-	def attempted_number(self):
-		# finds the number of attempted answers
-		count=0
-		for ans in self.answer_set.all():
-			att_stat = ans.attempt_status()
-			if att_stat==True or att_stat==False:
-				count+=1
-		return count
-
-	def total_questions(self):
-		return self.answer_set.count()
-
 	def can_attempt_more(self):
-		# returns whether user can attempt more questions from this set (by checking max_questions_to_attempt)
+		# returns whether user can attempt more questions from this section (by checking max_questions_to_attempt)
 		mqta = self.section.max_questions_to_attempt
-		attnum = self.attempted_number()
-		return (mqta==0 and attnum<self.total_questions()) or attnum<mqta
+		attnum = self.attempt_freq()[0]
+		return (mqta==0 and attnum<self.number_of_answers()) or attnum<mqta
 
-	def total_marks(self):
-		corr = self.section.correct_marks
-		wrong = self.section.wrong_marks
-		na = self.section.na_marks
-		hd = self.section.hint_deduction
-		marks = 0
+	# count
+
+	def result_freq(self):
+		# returns tuple (corr,wrong,na,hints,marks)
+		corr=0
+		wrong=0
+		na=0
+		hints=0
+		corr_marks = self.section.correct_marks
+		wrong_marks = self.section.wrong_marks
+		na_marks = self.section.na_marks
+		hd_marks = self.section.hint_deduction
 		for ans in self.answer_set.all():
 			if ans.viewed_hint:
-				marks-= hd
-			att_stat = ans.attempt_status()
-			if att_stat==True:
-				marks+= corr
-			elif att_stat==False:
-				marks+= wrong
-			else:
-				marks+= na
-		return marks
+				hints+=1
+			att_stat = ans.result()
+			if att_stat==True: corr+=1
+			elif att_stat==False: wrong+=1
+			else: na+=1
+		marks = corr_marks*corr + wrong_marks*wrong + na_marks*na - hints*hd_marks
+		return (corr,wrong,na,hints,marks)
+
+	def attempt_freq(self):
+		# returns a tuple of number of (attempted,na,hints) questions
+		att=0
+		na=0
+		hints=0
+		for ans in self.answer_set.all():
+			if ans.is_attempted(): att+=1
+			else: na+=1
+			if ans.viewed_hint:
+				hints+=1
+		return (att,na,hints)
+
+	def number_of_questions(self):
+		return self.section.number_of_questions()
+	def number_of_answers(self):
+		return self.answer_set.count()
 
 class Answer(models.Model):
 	section_answer_sheet = models.ForeignKey(SectionAnswerSheet)
@@ -429,15 +455,31 @@ class Answer(models.Model):
 		return self.get_special_answer().get_typed_question()
 	def get_generic_question(self):
 		return self.get_special_answer().get_generic_question()
-	def attempt_status(self):
+	def result(self):
 		# should return True for correct answer, False for wrong answer and None for not attempted
-		return self.get_special_answer().attempt_status()
+		return self.get_special_answer().result()
+	def marks(self):
+		marks=0
+		sec = self.section_answer_sheet.section
+		res = self.result()
+		if res==True: marks+= sec.correct_marks
+		elif res==False: marks+= sec.wrong_marks
+		else: marks+= sec.na_marks
+		if self.viewed_hint:
+			marks-= sec.hint_deduction
+		return marks
+	def is_attempted(self):
+		# should return True for attempted answer and False for not attempted
+		return self.get_special_answer().is_attempted()
 	def get_section(self):
 		return self.get_special_answer().get_section()
 	def is_attemptable(self):
-		# whether attempts is less than allowed_attempts
-		allatt = self.section_answer_sheet.section.allowed_attempts
-		return allatt<=0 or self.attempts<allatt
+		# whether attempts is less than allowed_attempts or question is already answered
+		if not self.is_attempted():
+			allatt = self.section_answer_sheet.section.allowed_attempts
+			return allatt<=0 or self.attempts<allatt
+		else:
+			return True
 	def __str__(self):
 		return self.get_qtype()+" : "+str(self.get_special_answer())
 
@@ -471,7 +513,9 @@ class SpecialAnswer:
 
 	def __str__(self):
 		return ""
-	def attempt_status(self):
+	def result(self):
+		pass
+	def is_attempted(self):
 		pass
 
 # MCQ questions ====================================================================================
@@ -540,12 +584,12 @@ class McqAnswer(models.Model, SpecialAnswer):
 
 	def __str__(self):
 		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
-	def attempt_status(self):
-		total_options = self.chosen_options.count()
-		if total_options==0:
+	def result(self):
+		if not self.chosen_options.exists():
 			return None
-		wrong_options = self.chosen_options.filter(is_correct=False).count()
-		return wrong_options == 0
+		return not self.chosen_options.filter(is_correct=False).exists()
+	def is_attempted(self):
+		return self.chosen_options.exists()
 
 	def verify_options(self):
 		# returns True if all options belong to this question and False otherwise
@@ -607,11 +651,13 @@ class TextAnswer(models.Model, SpecialAnswer):
 
 	def __str__(self):
 		return self.response
-	def attempt_status(self):
+	def result(self):
 		if self.response:
 			return self.special_question.check_response(self.response)
 		else:
 			return None
+	def is_attempted(self):
+		return self.response != ""
 	def save(self,*args,**kwargs):
 		self.verify_section()
 #		super().save(*args,**kwargs)

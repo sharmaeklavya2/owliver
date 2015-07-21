@@ -1,11 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'attempt/exam.html' %}
 
-{% block body_block %}
-<p>User: {{user.username}}</p>
+{% block h1_block %}{% endblock %}
 
+{% block eas_block %}
 <p>Question Info:</p>
 <ul>
-	<li>Exam: <a href="{% url 'main:attempt_exam' eas.id %}">{{exam.name}}</a></li>
 	<li>Section: <a href="{% url 'main:attempt_section' sas.id %}">{{section.name}}</a></li>
 	{% if qno %}
 	<li>Question no: {{qno}}</li>
@@ -14,6 +13,26 @@
 	<li>Question title: {{question.title}}</li>
 	{% endif %}
 </ul>
+
+<p>
+{% if prevaid %}
+<a href="{% url 'main:attempt_question' prevaid %}">Previous Question</a>
+{% elif prevsid %}
+<a href="{% url 'main:attempt_section' prevsid %}">Previous Section</a>
+{% else %}
+Previous Question
+{% endif %}
+</p>
+
+<p>
+{% if nextaid %}
+<a href="{% url 'main:attempt_question' nextaid %}">Next Question</a>
+{% elif nextsid %}
+<a href="{% url 'main:attempt_section' nextsid %}">Next Section</a>
+{% else %}
+Next Question
+{% endif %}
+</p>
 
 <hr />
 
@@ -24,29 +43,14 @@
 
 <form method="POST" action="{% url 'main:submit' answer.id %}" >
 	{% csrf_token %}
-	{% block input_block %}
-	{% endblock %}
+	{% block input_block %}{% endblock %}
 	<input type="submit" name="submit" value="Submit" /><br />
 	{% if nextaid %}
-	<input type="submit" name="submit_and_next" value="Submit and next question" />
+		<input type="submit" name="submit_and_next" value="Submit and next question" />
+	{% elif nextsid %}
+		<input type="submit" name="submit_and_next" value="Submit and next section" />
 	{% else %}
-	<input type="submit" name="submit_and_next" value="Submit and next question" disabled="true" />
+		<input type="button" value="Submit and next question" disabled="true" />
 	{% endif %}
 </form>
-
-<p>
-{% if prevaid %}
-<a href="{% url 'main:attempt_question' prevaid %}">Previous Question</a>
-{% else %}
-Previous Question
-{% endif %}
-</p>
-
-<p>
-{% if nextaid %}
-<a href="{% url 'main:attempt_question' nextaid %}">Next Question</a>
-{% else %}
-Next Question
-{% endif %}
-</p>
 {% endblock %}

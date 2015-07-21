@@ -3,12 +3,77 @@
 {% block h1_block %}{{exam.name}}{% endblock %}
 
 {% block body_block %}
-	<p>{{exam.info}}</p>
+	<p>Exam name: <a href="{% url 'main:attempt_exam' eas.id %}">{{exam.name}}</a></p>
+	<p>Status: {{eas.get_timer_status_str}}</p>
+	{% if eas.start_time %}
+		<p>Start time: {{eas.start_time}}</p>
+	{% endif %}
+	{% if eas.end_time %}
+		<p>End time: {{eas.end_time}}</p>
+	{% endif %}
+	{% if elapsed_time %}
+		<p>Time elapsed: {{elapsed_time}}</p>
+	{% endif %}
+	{% if remaining_time %}
+		<p>Time remaining: {{remaining_time}}</p>
+	{% endif %}
+	{% if timer_status == TIMER_NOT_SET %}
+	<form method="POST" action="{% url 'main:start_eas' eas.id %}">
+		{% csrf_token %}
+		<input type="submit" name="submit" value="Start exam" />
+	</form>
+	{% endif %}
+	{% if timer_status == TIMER_IN_PROGRESS or timer_status == TIMER_NOT_STARTED %}
+	<form method="POST" action="{% url 'main:submit_exam' eas.id %}" onsubmit="return confirm('Are you sure you want to end the exam?');">
+		{% csrf_token %}
+		<input type="submit" name="submit" value="End exam" />
+	</form>
+	{% endif %}
+
+	{% if can_view_solutions %}
+		<p>{{exam.postinfo}}</p>
+	{% endif %}
+	{% if timer_status == TIMER_ENDED %}
+		<p>Tags: {% for tag in exam.tags.all %}{{tag.name}}, {% endfor %}</p>
+	{% endif %}
 	<hr />
-	<p>Sections list:</p>
-	<ol>
-	{% for sas in eas.sectionanswersheet_set.all %}
-		<li><a href="{% url 'main:attempt_section' sas.id %}">{{sas.section.name}}</a></li>
-	{% endfor %}
-	</ol>
+	{% block eas_block %}
+		<p>{{exam.info}}</p>
+		{% if timer_status == TIMER_ENDED or timer_status == TIMER_IN_PROGRESS %}
+		<table>
+			<tr>
+				<td>Section name</td>
+				<td>Correct</td>
+				<td>Incorrect</td>
+				<td>Attempted</td>
+				<td>Unattempted</td>
+				<td>Total questions</td>
+				{% if hint_col %}<td>Hints viewed</td>{% endif %}
+				<td>Total marks</td>
+			</tr>
+			{% for sas in sas_set %}
+			<tr>
+				<td><a href="{% url 'main:attempt_section' sas.id %}">{{sas.section.name}}</a></td>
+				<td>{{sas.corr}}</td>
+				<td>{{sas.wrong}}</td>
+				<td>{{sas.att}}</td>
+				<td>{{sas.na}}</td>
+				<td>{{sas.tot}}</td>
+				{% if hint_col %}<td>{{sas.hints}}</td>{% endif %}
+				<td>{{sas.marks}}</td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td>Total</td>
+				<td>{{eas.corr}}</td>
+				<td>{{eas.wrong}}</td>
+				<td>{{eas.att}}</td>
+				<td>{{eas.na}}</td>
+				<td>{{eas.tot}}</td>
+				{% if hint_col %}<td>{{eas.hints}}</td>{% endif %}
+				<td>{{eas.marks}}</td>
+			</tr>
+		</table>
+		{% endif %}
+	{% endblock %}
 {% endblock %}

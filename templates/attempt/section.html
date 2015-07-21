@@ -1,59 +1,80 @@
-{% extends 'base.html' %}
+{% extends 'attempt/exam.html' %}
 
 {% block h1_block %}{{section.name}}{% endblock %}
 
-{% block body_block %}
-<p>User: {{user.username}}</p>
-<p>Exam: <a href="{% url 'main:attempt_exam' eas.id %}">{{exam.name}}</a></p>
-<p>{{section.info}}</p>
+{% block eas_block %}
+	<p>Section: <a href="{% url 'main:attempt_section' sas.id %}">{{section.name}}</a></p>
 
-<hr />
+	<p>
+	{% if prevsid %}
+		<a href="{% url 'main:attempt_section' prevsid %}">
+		Previous Section ({{prevsecname}})
+		</a>
+	{% else %}
+		Previous Section
+	{% endif %}
+	</p>
+	<p>
+	{% if nextsid %}
+		<a href="{% url 'main:attempt_section' nextsid %}">
+		Next Section ({{nextsecname}})
+		</a>
+	{% else %}
+		Next Section
+	{% endif %}
+	</p>
+	<p>{{section.info}}</p>
+	Marking Scheme:<br />
+	<table border="1">
+		<tr>
+			<td>Correct answer</td>
+			<td>{{section.correct_marks}}</td>
+		</tr>
+		<tr>
+			<td>Wrong answer</td>
+			<td>{{section.wrong_marks}}</td>
+		</tr>
+		<tr>
+			<td>Not attempting</td>
+			<td>{{section.na_marks}}</td>
+		</tr>
+		<tr>
+			<td>Deduction on viewing hint</td>
+			<td>{{section.hint_deduction}}</td>
+		</tr>
+	</table>
 
-Marking Scheme:<br />
-<table border="1">
-	<tr>
-		<td>Correct answer</td>
-		<td>{{section.correct_marks}}</td>
-	</tr>
-	<tr>
-		<td>Wrong answer</td>
-		<td>{{section.wrong_marks}}</td>
-	</tr>
-	<tr>
-		<td>Not attempting</td>
-		<td>{{section.na_marks}}</td>
-	</tr>
-	<tr>
-		<td>Deduction on viewing hint</td>
-		<td>{{section.hint_deduction}}</td>
-	</tr>
-</table>
+	{% if section.max_questions_to_attempt == 0 %}
+	<p>Attempt all questions in this section (if you can).</p>
+	{% else %}
+	<p>You can attempt a maximum of {{section.max_questions_to_attempt}} questions.</p>
+	{% endif %}
 
-{% if section.max_questions_to_attempt == 0 %}
-<p>Attempt all questions in this section (if you can).</p>
-{% else %}
-<p>You can attempt a maximum of {{section.max_questions_to_attempt}} questions.</p>
-{% endif %}
-
-{% if section.allowed_attempts <= 0 %}
-	<p>You can submit an answer to a question as many times as you want.</p>
-	{% if section.allowed_attempts == -1 %}
+	{% if section.allowed_attempts <= 0 %}
+		<p>You can submit an answer to a question as many times as you want.</p>
+		{% if section.allowed_attempts == -1 %}
+			You will be shown your attempt status after every submit.
+		{% endif %}
+	{% else %}
+		<p>You can submit an answer a maximum of {{section.allowed_attempts}} times per question.
 		You will be shown your attempt status after every submit.
+		{% if section.show_correct_answer %}
+			You will be shown the correct answer of a question after exhausting all attempts of that question.
+		{% endif %}
 	{% endif %}
-{% else %}
-	<p>You can submit an answer a maximum of {{section.allowed_attempts}} times per question.
-	You will be shown your attempt status after every submit.
-	{% if section.show_correct_answer %}
-		You will be shown the correct answer of a question after exhausting all attempts of that question.
+
+	{% if can_view_solutions %}
+		<p>{{section.postinfo}}</p>
 	{% endif %}
-{% endif %}
+	{% if timer_status == TIMER_ENDED %}
+		<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+	{% endif %}
+	<hr />
 
-<hr />
-
-<p>Questions in this section:</p>
-<ol>
-	{% for answer in sas.answer_set.all %}
-		<li><a href="{% url 'main:attempt_question' answer.id %}">{{answer.get_typed_question}}</a></li>
-	{% endfor %}
-</ol>
+	<p>Questions in this section:</p>
+	<ol>
+		{% for answer in sas.answer_set.all %}
+			<li><a href="{% url 'main:attempt_question' answer.id %}">{{answer.get_typed_question}}</a></li>
+		{% endfor %}
+	</ol>
 {% endblock %}
