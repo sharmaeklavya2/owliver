@@ -128,6 +128,9 @@ class Section(models.Model):
 	postinfo = models.TextField(blank=True)
 	tags = models.ManyToManyField(Tag)
 
+	class Meta:
+		ordering=("id",)
+
 	def __str__(self):
 		return self.exam.name+" : "+self.name
 	def add_tag(self,tagname):
@@ -218,6 +221,9 @@ class Question(models.Model):
 	hint = models.TextField(blank=True)
 	solution = models.TextField(blank=True)
 #	qtype = models.CharField("Question Type",max_length=8,choices=QUESTION_TYPE)
+
+	class Meta:
+		ordering=("id",)
 
 	def __str__(self):
 		if self.title: return self.title
@@ -374,6 +380,10 @@ class SectionAnswerSheet(models.Model):
 	# Answer Objects FK to this model
 	section = models.ForeignKey(Section)
 	exam_answer_sheet = models.ForeignKey(ExamAnswerSheet)
+
+	class Meta:
+		ordering=("id",)
+
 	def __str__(self):
 		return str(self.section)
 	def save(self,*args,**kwargs):
@@ -432,6 +442,9 @@ class Answer(models.Model):
 #	question = models.ForeignKey(Question)
 	viewed_hint = models.BooleanField(default=False)
 	attempts = models.PositiveIntegerField(default=0)
+
+	class Meta:
+		ordering=("id",)
 
 	def get_qtype(self):
 		for qtype in QUESTION_TYPE_DICT:
@@ -524,6 +537,9 @@ class McqQuestion(models.Model, SpecialQuestion):
 	question = models.OneToOneField(Question)
 	multicorrect = models.BooleanField(default=False)
 
+	class Meta:
+		ordering=("id",)
+
 	def __str__(self):
 		return str(self.question)
 	def get_qtype(self):
@@ -562,6 +578,9 @@ class McqOption(models.Model):
 	is_correct = models.BooleanField(default=False)
 	special_question = models.ForeignKey(McqQuestion)
 
+	class Meta:
+		ordering=("id",)
+
 	def option_text(self):
 		if self.title: return self.title
 		else: return self.text
@@ -581,6 +600,9 @@ class McqAnswer(models.Model, SpecialAnswer):
 	answer = models.OneToOneField(Answer)
 	special_question = models.ForeignKey(McqQuestion)
 	chosen_options = models.ManyToManyField(McqOption,through="McqAnswerToMcqOption")
+
+	class Meta:
+		ordering=("id",)
 
 	def __str__(self):
 		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
@@ -619,6 +641,9 @@ class TextQuestion(models.Model, SpecialQuestion):
 	use_regex = models.BooleanField(default=False)
 	correct_answer = models.TextField(blank=False)
 
+	class Meta:
+		ordering=("id",)
+
 	def get_qtype(self):
 		return "text"
 	def __str__(self):
@@ -635,8 +660,8 @@ class TextQuestion(models.Model, SpecialQuestion):
 
 	def check_response(self,response):
 		if self.use_regex:
-			if self.ignore_case: flags=0
-			else: flags=re.IGNORECASE
+			if self.ignore_case: flags=re.IGNORECASE
+			else: flags=0
 			return bool(re.fullmatch(self.correct_answer,response,flags))
 		else:
 			if self.ignore_case:
@@ -648,6 +673,9 @@ class TextAnswer(models.Model, SpecialAnswer):
 	answer = models.OneToOneField(Answer)
 	special_question = models.ForeignKey(TextQuestion)
 	response = models.TextField(blank=True)
+
+	class Meta:
+		ordering=("id",)
 
 	def __str__(self):
 		return self.response

@@ -21,7 +21,7 @@ class InvalidTagName(CustomException):
 	def __str__(self):
 		return self.tagname + " is an invalid tag name"
 
-DEFAULT_PATH = os.path.join(BASE_DIR,"tags.txt")
+DEFAULT_PATH = os.path.join(BASE_DIR,"data","tags.txt")
 def import_tags_from_file(filepath=DEFAULT_PATH):
 	for line in open(filepath):
 		parts = line.split(maxsplit=1)

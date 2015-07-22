@@ -1,0 +1,36 @@
+{% extends 'review/question.html' %}
+
+{% block options_block %}
+<table>
+	<tr>
+		<td>Sno.</td>
+		<td>Option</td>
+		<td>Your choice</td>
+		<td>Correct choice</td>
+	</tr>
+	{% for option in option_list %}
+	<tr>
+		<td>{{forloop.counter}}</td>
+		<td>{{option.text}}</td>
+		<td>
+			{% if option.is_chosen %}
+				{% if special_question.multicorrect %}
+					{{unicode_dict.check_mark|safe}}
+				{% else %}
+					{{unicode_dict.black_circle|safe}}
+				{% endif %}
+			{% endif %}
+		</td>
+		<td>
+			{% if option.is_correct %}
+				{% if special_question.multicorrect %}
+					{{unicode_dict.check_mark|safe}}
+				{% else %}
+					{{unicode_dict.black_circle|safe}}
+				{% endif %}
+			{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}

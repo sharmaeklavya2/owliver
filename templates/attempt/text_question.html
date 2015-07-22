@@ -2,5 +2,6 @@
 
 {% block input_block %}
 	<input type="text" name="response" value="{{special_answer.response}}" />
-	<p>Case-insensitive: {{special_question.ignore_case}}</p>
+	<p>Case-sensitive: {{case_sens}}</p>
+	{% if special_question.use_regex %}<p>Answer will be checked using Regular Expressions</p>{% endif %}
 {% endblock %}

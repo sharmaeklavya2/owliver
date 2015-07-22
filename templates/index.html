@@ -15,7 +15,9 @@
 	{% endif %}
 	<p><a href="{% url 'main:about' %}">About Owliver</a></p>
 	<hr />
-	<p><a href="{% url 'main:eas_list' %}">My Exams</a></p>
-	<p><a href="{% url 'main:my_exam_list' %}">Exams owned by me</a></p>
+	{% if user.is_authenticated %}
+		<p><a href="{% url 'main:eas_list' %}">My Exams</a></p>
+		<p><a href="{% url 'main:user_exam_list' user.username %}">Exams owned by me</a></p>
+	{% endif %}
 	<p><a href="{% url 'main:public_exam_list' %}">Public Exams</a></p>
 {% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'question_base.html' %}
+
+{% block question_block %}
+	<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+
+	{% block options_block %}{% endblock %}
+
+	<p>Result: {{result_str}}</p>
+	<p>Marks obtained: {{marks}}</p>
+
+	{% if can_view_solution %}
+		{% if question.solution %}
+			<p>Solution:</p>
+			<div>{{question.solution}}</div>
+		{% else %}
+			<p>No solution available.</p>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+

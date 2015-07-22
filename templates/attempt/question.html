@@ -1,56 +1,16 @@
-{% extends 'attempt/exam.html' %}
+{% extends 'question_base.html' %}
 
-{% block h1_block %}{% endblock %}
-
-{% block eas_block %}
-<p>Question Info:</p>
-<ul>
-	<li>Section: <a href="{% url 'main:attempt_section' sas.id %}">{{section.name}}</a></li>
-	{% if qno %}
-	<li>Question no: {{qno}}</li>
-	{% endif %}
-	{% if question.title %}
-	<li>Question title: {{question.title}}</li>
-	{% endif %}
-</ul>
-
-<p>
-{% if prevaid %}
-<a href="{% url 'main:attempt_question' prevaid %}">Previous Question</a>
-{% elif prevsid %}
-<a href="{% url 'main:attempt_section' prevsid %}">Previous Section</a>
-{% else %}
-Previous Question
-{% endif %}
-</p>
-
-<p>
-{% if nextaid %}
-<a href="{% url 'main:attempt_question' nextaid %}">Next Question</a>
-{% elif nextsid %}
-<a href="{% url 'main:attempt_section' nextsid %}">Next Section</a>
-{% else %}
-Next Question
-{% endif %}
-</p>
-
-<hr />
-
-<p>{{question.text}}</p>
-{% if answer.viewed_hint %}
-<p>Hint:<br />{{question.hint}}</p>
-{% endif %}
-
-<form method="POST" action="{% url 'main:submit' answer.id %}" >
-	{% csrf_token %}
-	{% block input_block %}{% endblock %}
-	<input type="submit" name="submit" value="Submit" /><br />
-	{% if nextaid %}
-		<input type="submit" name="submit_and_next" value="Submit and next question" />
-	{% elif nextsid %}
-		<input type="submit" name="submit_and_next" value="Submit and next section" />
-	{% else %}
-		<input type="button" value="Submit and next question" disabled="true" />
-	{% endif %}
-</form>
+{% block question_block %}
+	<form method="POST" action="{% url 'main:submit' answer.id %}" >
+		{% csrf_token %}
+		{% block input_block %}{% endblock %}
+		<input type="submit" name="submit" value="Submit" /><br />
+		{% if nextaid %}
+			<input type="submit" name="submit_and_next" value="Submit and next question" />
+		{% elif nextsid %}
+			<input type="submit" name="submit_and_next" value="Submit and next section" />
+		{% else %}
+			<input type="button" value="Submit and next question" disabled="true" />
+		{% endif %}
+	</form>
 {% endblock %}

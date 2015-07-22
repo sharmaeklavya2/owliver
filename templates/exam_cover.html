@@ -3,7 +3,7 @@
 {% block h1_block %}{{exam.name}}{% endblock %}
 
 {% block body_block %}
-	<p>{{exam.info}}</p>
+	<div>{{exam.info}}</div>
 	{% if infinite_time %}
 		<p>There is no time limit</p>
 	{% else %}
@@ -11,7 +11,7 @@
 	{% endif %}
 	{% if user.is_authenticated %}
 		{% if can_attempt %}
-			<form method="POST" action="{% url 'main:add_eas' exam.id %}" >
+			<form method="POST" action="{% url 'main:make_eas' exam.id %}" >
 				{% csrf_token %}
 				<input type="submit" name="start" value="Start Exam" /><br />
 				<input type="submit" name="later" value="Attempt Later" />

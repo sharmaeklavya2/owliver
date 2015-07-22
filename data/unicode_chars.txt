@@ -1,0 +1,3 @@
+&#x2716	cross
+&#x2713	check_mark
+&#x25cf	black_circle

@@ -6,7 +6,7 @@
 	{% if eas_list %}
 		<ol>
 		{% for eas in eas_list %}
-			<li><a href="{% url 'main:attempt_exam' eas.id %}">{{eas.exam.name}}</a></li>
+			<li><a href="{% url 'main:eas_cover' eas.id %}">{{eas.exam.name}}</a></li>
 		{% endfor %}
 		</ol>
 	{% else %}

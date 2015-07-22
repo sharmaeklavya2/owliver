@@ -1,13 +1,13 @@
-{% extends 'attempt/exam.html' %}
+{% extends 'eas_cover.html' %}
 
 {% block h1_block %}{{section.name}}{% endblock %}
 
 {% block eas_block %}
-	<p>Section: <a href="{% url 'main:attempt_section' sas.id %}">{{section.name}}</a></p>
+	<p>Section: <a href="{% url 'main:sas_cover' sas.id %}">{{section.name}}</a></p>
 
 	<p>
 	{% if prevsid %}
-		<a href="{% url 'main:attempt_section' prevsid %}">
+		<a href="{% url 'main:sas_cover' prevsid %}">
 		Previous Section ({{prevsecname}})
 		</a>
 	{% else %}
@@ -16,14 +16,14 @@
 	</p>
 	<p>
 	{% if nextsid %}
-		<a href="{% url 'main:attempt_section' nextsid %}">
+		<a href="{% url 'main:sas_cover' nextsid %}">
 		Next Section ({{nextsecname}})
 		</a>
 	{% else %}
 		Next Section
 	{% endif %}
 	</p>
-	<p>{{section.info}}</p>
+	<div>{{section.info}}</div>
 	Marking Scheme:<br />
 	<table border="1">
 		<tr>
@@ -64,9 +64,9 @@
 	{% endif %}
 
 	{% if can_view_solutions %}
-		<p>{{section.postinfo}}</p>
+		<div>{{section.postinfo}}</div>
 	{% endif %}
-	{% if timer_status == TIMER_ENDED %}
+	{% if timer_status == EAS.TIMER_ENDED %}
 		<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
 	{% endif %}
 	<hr />

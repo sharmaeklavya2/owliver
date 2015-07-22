@@ -3,14 +3,14 @@
 {% block input_block %}
 
 <ol type="A">
-	{% for mcqoption in special_question.mcqoption_set.all %}
+	{% for option in option_list %}
 	<li>
 		<input 
-			name="response" value="{{mcqoption.id}}" id="{{mcqoption.id}}"
+			name="response" value="{{option.id}}" id="{{option.id}}"
 			type="{% if special_question.multicorrect %}checkbox{% else %}radio{% endif %}"
-			{% if mcqoption in special_answer.chosen_options.all %}checked="checked"{% endif %}
+			{% if option.is_chosen %}checked="checked"{% endif %}
 		/>
-		<label for="{{mcqoption.id}}">{{mcqoption.text}}</label>
+		<label for="{{option.id}}">{{option.text}}</label>
 	</li>
 	{% endfor %}
 </ol>

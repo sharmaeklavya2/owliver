@@ -8,10 +8,13 @@ from django.contrib.auth.decorators import login_required
 from main import models
 from main.models import Exam, Answer, ExamAnswerSheet, SectionAnswerSheet, McqAnswerToMcqOption
 from custom_exceptions import CustomException, QuestionTypeNotImplemented
-from scripts import add_anssheet
+from scripts import add_anssheet, load_unicode
+
+EAS = ExamAnswerSheet
 
 import sys
 import django
+import os
 from datetime import timedelta, datetime
 from django.utils import timezone
 
@@ -28,22 +31,27 @@ def about(request):
 	return render(request,"about.html",context_dict)
 
 def index(request):
-	context_dict = {}
-	return render(request,"index.html",context_dict)
+	return render(request,"index.html",{})
 
-class ParaayaAnswer(CustomException):
-	# In hindi, paraaya means "something/someone which does not belong to you/us"
+exam_not_started_str = "This exam has not begun"
+exam_ended_str = "This exam has ended"
+
+class InvalidUser(CustomException):
+	exp_str = "This link does not belong to you"
 	def __str__(self):
-		return "This link does not belong to you"
-class ExamNotStarted(CustomException):
-	def __str__(self):
-		return "This exam has not begun"
-class ExamEnded(CustomException):
-	def __str__(self):
-		return "This exam has ended"
+		return InvalidUser.exp_str
 class InvalidFormData(CustomException):
+	exp_str = "This form has invalid POST data. Either there is a bug in our code or some hacker is at work."
 	def __str__(self):
-		return "This form has invalid POST data. Either there is a bug in our code or some hacker is at work."
+		return InvalidFormData.exp_str
+
+def base_response(request,body,title=None,h1=None):
+	context_dict = {"base_body":body}
+	if title:
+		context_dict["base_title"] = title
+	if h1:
+		context_dict["base_h1"] = h1
+	return render(request, "base.html", context_dict)
 
 # Exam Lists =======================================================================================
 
@@ -53,11 +61,11 @@ def public_exam_list(request):
 	context_dict["base_h1"] = "Public Exams"
 	return render(request,"exam_list.html",context_dict)
 
-@login_required
-def my_exam_list(request):
-	context_dict = {"exam_list":Exam.objects.filter(owner=request.user)}
-	context_dict["base_title"] = "Owliver - My Exams"
-	context_dict["base_h1"] = "Exams owned by me"
+def user_exam_list(request,username):
+	user = get_object_or_404(User,username=username)
+	context_dict = {"exam_list":Exam.objects.filter(owner=user)}
+	context_dict["base_title"] = "Owliver - {username}'s Exams".format(username=username)
+	context_dict["base_h1"] = "Exams owned by "+username
 	return render(request,"exam_list.html",context_dict)
 
 @login_required
@@ -75,7 +83,7 @@ def exam_cover(request,eid):
 	return render(request,"exam_cover.html",context_dict)
 
 @login_required
-def add_eas(request,eid):
+def make_eas(request,eid):
 	if request.method!="POST":
 		raise Http404("This page is only accessible via POST")
 	exam = get_object_or_404(Exam,id=eid)
@@ -85,8 +93,7 @@ def add_eas(request,eid):
 			eas.set_timer()
 		return HttpResponseRedirect(reverse("main:eas_list"))
 	else:
-		context_dict = {"base_body":"You do not have permission to attempt this exam."}
-		return render(request, "base.html", context_dict)
+		return base_response(request, "You do not have permission to attempt this exam.")
 
 @login_required
 def start_eas(request,eid):
@@ -95,53 +102,40 @@ def start_eas(request,eid):
 	eas = get_object_or_404(ExamAnswerSheet,id=eid)
 	if eas.user!=request.user:
 		raise Http404(str(ParaayaAnswer()))
-	if eas.get_timer_status() == ExamAnswerSheet.TIMER_NOT_SET:
+	if eas.get_timer_status() == EAS.TIMER_NOT_SET:
 		eas.set_timer()
-	return HttpResponseRedirect(reverse("main:attempt_exam",args=(eas.id,)))
+	return HttpResponseRedirect(reverse("main:eas_cover",args=(eas.id,)))
 
 # Attempt ==========================================================================================
 
-def verify_user_permission(eas,current_user):
-	# check if a user is allowed to look at a page
-	if eas.user.username != current_user.username:
-		raise ParaayaAnswer()
-	timer_status = eas.get_timer_status()
-	if timer_status==ExamAnswerSheet.TIMER_ENDED:
-		raise ExamEnded()
-	if timer_status!=ExamAnswerSheet.TIMER_IN_PROGRESS:
-		raise ExamNotStarted()
+def exam_not_started(timer_status):
+	return timer_status!=EAS.TIMER_IN_PROGRESS and timer_status!=EAS.TIMER_ENDED
 
 def get_dict_with_eas_values(eas,current_user):
+	if eas.user!=current_user:
+		raise InvalidUser()
 	context_dict = {"eas":eas}
 	timer_status = eas.get_timer_status()
 	context_dict["timer_status"] = timer_status
-	context_dict["TIMER_ERROR"] = ExamAnswerSheet.TIMER_IN_PROGRESS
-	context_dict["TIMER_NOT_SET"] = ExamAnswerSheet.TIMER_NOT_SET
-	context_dict["TIMER_NOT_STARTED"] = ExamAnswerSheet.TIMER_NOT_STARTED
-	context_dict["TIMER_IN_PROGRESS"] = ExamAnswerSheet.TIMER_IN_PROGRESS
-	context_dict["TIMER_ENDED"] = ExamAnswerSheet.TIMER_ENDED
-	if timer_status==ExamAnswerSheet.TIMER_IN_PROGRESS:
+	context_dict["EAS"] = EAS
+	if timer_status==EAS.TIMER_IN_PROGRESS:
 		now = timezone.now()
 		context_dict["elapsed_time"] = now - eas.start_time
 		if eas.end_time!=None:
-			context_dict["remaining_time"] = eas.end_time() - now
+			context_dict["remaining_time"] = eas.end_time - now
 	exam = eas.exam
 	context_dict["exam"] = exam
-	context_dict["can_view_solutions"] = (exam.can_view_solutions(current_user) and timer_status==ExamAnswerSheet.TIMER_ENDED)
+	context_dict["can_view_solutions"] = (exam.can_view_solutions(current_user) and timer_status==EAS.TIMER_ENDED)
 	return context_dict
 
 @login_required
-def attempt_exam(request,eid):
+def eas_cover(request,eid):
 	eid = int(eid)
 	eas = get_object_or_404(ExamAnswerSheet, id=eid)
 	try:
-		verify_user_permission(eas,request.user)
-	except ParaayaAnswer as paexp:
-		context_dict = {"base_body":str(paexp)}
-		return render(request, "base.html", context_dict)
-	except (ExamNotStarted,ExamEnded):
-		pass
-	context_dict = get_dict_with_eas_values(eas,request.user)
+		context_dict = get_dict_with_eas_values(eas,request.user)
+	except InvalidUser:
+		return base_response(request, InvalidUser.exp_str)
 	exam = context_dict["exam"]
 	timer_status = context_dict["timer_status"]
 
@@ -152,7 +146,7 @@ def attempt_exam(request,eid):
 	eas.hints=0; eas.marks=0; eas.tot=0;
 	hint_col = False
 	for sas in sas_set:
-		if sas.section.allowed_attempts==0 and timer_status!=ExamAnswerSheet.TIMER_ENDED:
+		if sas.section.allowed_attempts==0 and timer_status!=EAS.TIMER_ENDED:
 			sas.att, sas.na, sas.hints = sas.attempt_freq()
 			sas.corr = ""; sas.wrong = ""; sas.marks = "";
 		else:
@@ -171,13 +165,12 @@ def attempt_exam(request,eid):
 		for attr in attrs:
 			setattr(eas,attr,getattr(eas,attr)+getattr(sas,attr))
 		context_dict["hint_col"] = hint_col
-	return render(request,"attempt/exam.html",context_dict)
+	return render(request,"eas_cover.html",context_dict)
 
-def get_dict_with_sas_values(sas,current_user):
-	eas = sas.exam_answer_sheet
-	context_dict = get_dict_with_eas_values(eas,current_user)
+def fill_dict_with_sas_values(context_dict,sas):
 	context_dict["sas"] = sas
 	context_dict["section"] = sas.section
+	eas = sas.exam_answer_sheet
 
 	qset = eas.sectionanswersheet_set.filter(id__lt=sas.id)
 	# qset means queryset
@@ -198,33 +191,46 @@ def get_dict_with_sas_values(sas,current_user):
 
 	context_dict["prevsid"] = prevsid
 	context_dict["nextsid"] = nextsid
-	return context_dict
 
 @login_required
-def attempt_section(request,sid):
+def sas_cover(request,sid):
 	sid = int(sid)
 	sas = get_object_or_404(SectionAnswerSheet, id=sid)
-	sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
-	context_dict = get_dict_with_sas_values(sas,request.user)
-	try:
-		verify_user_permission(context_dict["eas"],request.user)
-	except (ParaayaAnswer,ExamNotStarted) as cexp:
-		context_dict = {"base_body":str(cexp)}
-		return render(request, "base.html", context_dict)
-	except ExamEnded:
-		pass
-	return render(request,"attempt/section.html",context_dict)
 
-def get_dict_with_answer_values(answer,current_user):
-	sas = answer.section_answer_sheet
-	context_dict = get_dict_with_sas_values(sas,current_user)
+	eas = sas.exam_answer_sheet
+	try:
+		context_dict = get_dict_with_eas_values(eas,request.user)
+	except InvalidUser:
+		return base_response(request, InvalidUser.exp_str)
+	if exam_not_started(context_dict["timer_status"]):
+		return base_response(request, exam_not_started_str)
+
+	sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
+	fill_dict_with_sas_values(context_dict, sas)
+	context_dict["unicode_dict"] = load_unicode.unicode_dict
+	return render(request,"sas_cover.html",context_dict)
+
+def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 	context_dict["answer"] = answer
+	sas = answer.section_answer_sheet
+	section = sas.section
 	special_question = answer.get_typed_question()
 	special_answer = answer.get_special_answer()
 	question = special_question.question
 
-	prevsid = context_dict["prevsid"]
-	nextsid = context_dict["nextsid"]
+	if verbose:
+		result = special_answer.result()
+		if result==True:
+			context_dict["result_str"] = "Correct"
+			context_dict["marks"] = section.correct_marks
+		elif result==False:
+			context_dict["result_str"] = "Wrong"
+			context_dict["marks"] = section.wrong_marks
+		else:
+			context_dict["result_str"] = "Not attempted"
+			context_dict["marks"] = section.na_marks
+		if answer.viewed_hint:
+			context_dict["marks"]-= section.hint_deduction
 
 	qset = sas.answer_set.filter(id__lt=answer.id)
 	# qset means queryset, qno means question number
@@ -254,19 +260,45 @@ def get_dict_with_answer_values(answer,current_user):
 	context_dict["special_question"] = special_question
 	context_dict["answer"] = answer
 	context_dict["special_answer"] = special_answer
-	return context_dict
 
 @login_required
 def attempt_question(request,aid):
 	aid = int(aid)
 	answer = get_object_or_404(Answer, id=aid)
-	context_dict = get_dict_with_answer_values(answer,request.user)
+	sas = answer.section_answer_sheet
+	eas = sas.exam_answer_sheet
 	try:
-		verify_user_permission(context_dict["eas"],request.user)
-	except (ParaayaAnswer,ExamNotStarted,ExamEnded) as cexp:
-		context_dict = {"base_body":str(cexp)}
-		return render(request, "base.html", context_dict)
-	return render(request,"attempt/"+context_dict["qtype"]+"_question.html",context_dict)
+		context_dict = get_dict_with_eas_values(eas,request.user)
+	except InvalidUser:
+		return base_response(request, InvalidUser.exp_str)
+	timer_status = context_dict["timer_status"]
+	if exam_not_started(timer_status):
+		return base_response(exam_not_started_str)
+	fill_dict_with_sas_values(context_dict,sas)
+	fill_dict_with_answer_values(context_dict,answer,verbose=True)
+	if timer_status==EAS.TIMER_IN_PROGRESS:
+		folder="attempt"
+	else:
+		folder="review"
+
+	qtype = context_dict["qtype"]
+	special_answer = context_dict["special_answer"]
+	special_question = context_dict["special_question"]
+	if qtype=="text":
+		if special_question.ignore_case:
+			context_dict["case_sens"] = "No"
+		else:
+			context_dict["case_sens"] = "Yes"
+	elif qtype=="mcq":
+		option_list = list(special_question.mcqoption_set.all())
+		chosen_options = set(special_answer.chosen_options.all())
+		for option in option_list:
+			option.is_chosen = (option in chosen_options)
+		context_dict["option_list"] = option_list
+	else:
+		raise QuestionTypeNotImplemented(qtype)
+	context_dict["unicode_dict"] = load_unicode.unicode_dict
+	return render(request, os.path.join(folder,context_dict["qtype"]+"_question.html"), context_dict)
 
 @login_required
 def submit(request,aid):
@@ -275,13 +307,19 @@ def submit(request,aid):
 
 	aid = int(aid)
 	answer = get_object_or_404(Answer, id=aid)
-	context_dict = get_dict_with_answer_values(answer,request.user)
-	eas = context_dict["eas"]
+	sas = answer.section_answer_sheet
+	eas = sas.exam_answer_sheet
 	try:
-		verify_user_permission(eas,request.user)
-	except (ParaayaAnswer,ExamNotStarted,ExamEnded) as cexp:
-		context_dict = {"base_body":str(cexp)}
-		return render(request, "base.html", context_dict)
+		context_dict = get_dict_with_eas_values(eas,request.user)
+	except InvalidUser:
+		return base_response(request, InvalidUser.exp_str)
+	timer_status = context_dict["timer_status"]
+	if timer_status==EAS.TIMER_ENDED:
+		return base_response(request, exam_ended_str)
+	elif timer_status!=EAS.TIMER_IN_PROGRESS:
+		return base_response(request, exam_not_started_str)
+
+	fill_dict_with_answer_values(context_dict,answer)
 
 	# save response to database
 	qtype = context_dict["qtype"]
@@ -308,21 +346,26 @@ def submit(request,aid):
 	else:
 		raise InvalidFormData()
 	if not nextaid:
-		nextaid = aid
+		fill_dict_with_sas_values(context_dict,sas)
+		nextsid = context_dict["nextsid"]
+		if not nextsid:
+			nextaid = aid
+		else:
+			return HttpResponseRedirect(reverse("main:sas_cover",args=(nextsid,)))
 	return HttpResponseRedirect(reverse("main:attempt_question",args=(nextaid,)))
 
 @login_required
-def submit_exam(request,eid):
+def submit_eas(request,eid):
 	if request.method!="POST":
 		raise Http404("This page is only accessible via POST")
 	eas = get_object_or_404(ExamAnswerSheet,id=eid)
 	if eas.user!=request.user:
-		raise Http404(str(ParaayaAnswer()))
+		raise Http404(InvalidUser.exp_str)
 	timer_status = eas.get_timer_status()
-	if timer_status == ExamAnswerSheet.TIMER_IN_PROGRESS:
+	if timer_status == EAS.TIMER_IN_PROGRESS:
 		eas.end_time = timezone.now()
 		eas.save()
-	elif timer_status == ExamAnswerSheet.TIMER_NOT_STARTED:
+	elif timer_status == EAS.TIMER_NOT_STARTED:
 		eas.end_time = eas.start_time
 		eas.save()
-	return HttpResponseRedirect(reverse("main:attempt_exam",args=(eas.id,)))
+	return HttpResponseRedirect(reverse("main:eas_cover",args=(eas.id,)))
