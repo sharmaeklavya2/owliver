@@ -487,12 +487,9 @@ class Answer(models.Model):
 	def get_section(self):
 		return self.get_special_answer().get_section()
 	def is_attemptable(self):
-		# whether attempts is less than allowed_attempts or question is already answered
-		if not self.is_attempted():
-			allatt = self.section_answer_sheet.section.allowed_attempts
-			return allatt<=0 or self.attempts<allatt
-		else:
-			return True
+		# whether attempts is less than allowed_attempts
+		allatt = self.section_answer_sheet.section.allowed_attempts
+		return allatt<=0 or self.attempts<allatt
 	def __str__(self):
 		return self.get_qtype()+" : "+str(self.get_special_answer())
 

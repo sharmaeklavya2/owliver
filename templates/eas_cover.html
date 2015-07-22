@@ -50,6 +50,8 @@
 				<td>Total questions</td>
 				{% if hint_col %}<td>Hints viewed</td>{% endif %}
 				<td>Total marks</td>
+				<td>Max marks</td>
+				<td>Percentage</td>
 			</tr>
 			{% for sas in sas_set %}
 			<tr>
@@ -61,6 +63,8 @@
 				<td>{{sas.tot}}</td>
 				{% if hint_col %}<td>{{sas.hints}}</td>{% endif %}
 				<td>{{sas.marks}}</td>
+				<td>{{sas.max_marks}}</td>
+				<td>{{sas.perc}}</td>
 			</tr>
 			{% endfor %}
 			<tr>
@@ -72,6 +76,8 @@
 				<td>{{eas.tot}}</td>
 				{% if hint_col %}<td>{{eas.hints}}</td>{% endif %}
 				<td>{{eas.marks}}</td>
+				<td>{{eas.max_marks}}</td>
+				<td>{{eas.perc}}</td>
 			</tr>
 		</table>
 		{% endif %}

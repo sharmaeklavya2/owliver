@@ -3,8 +3,6 @@
 {% block h1_block %}{{section.name}}{% endblock %}
 
 {% block eas_block %}
-	<p>Section: <a href="{% url 'main:sas_cover' sas.id %}">{{section.name}}</a></p>
-
 	<p>
 	{% if prevsid %}
 		<a href="{% url 'main:sas_cover' prevsid %}">
@@ -25,7 +23,7 @@
 	</p>
 	<div>{{section.info}}</div>
 	Marking Scheme:<br />
-	<table border="1">
+	<table>
 		<tr>
 			<td>Correct answer</td>
 			<td>{{section.correct_marks}}</td>
@@ -43,6 +41,9 @@
 			<td>{{section.hint_deduction}}</td>
 		</tr>
 	</table>
+
+	<p>Number of Questions: {{sas.tot}}</p>
+	<p>Maximum marks: {{max_marks}}</p>
 
 	{% if section.max_questions_to_attempt == 0 %}
 	<p>Attempt all questions in this section (if you can).</p>
@@ -71,10 +72,73 @@
 	{% endif %}
 	<hr />
 
+	<p>Section stats:</p>
+	<table>
+		{% if show_results %}
+		<tr>
+			<td>Correct Answers</td>
+			<td>{{sas.corr}}</td>
+		</tr>
+		<tr>
+			<td>Wrong Answers</td>
+			<td>{{sas.wrong}}</td>
+		</tr>
+		{% endif %}
+		<tr>
+			<td>Attempted Questions</td>
+			<td>{{sas.att}}</td>
+		</tr>
+		<tr>
+			<td>Unattempted Questions</td>
+			<td>{{sas.na}}</td>
+		</tr>
+		<tr>
+			<td>Total Questions</td>
+			<td>{{sas.tot}}</td>
+		</tr>
+		{% if show_results %}
+		<tr>
+			<td>Total Marks</td>
+			<td>{{sas.marks}}</td>
+		</tr>
+		{% endif %}
+		<tr>
+			<td>Percentage</td>
+			<td>{{sas.perc}}</td>
+		</tr>
+	</table>
 	<p>Questions in this section:</p>
-	<ol>
-		{% for answer in sas.answer_set.all %}
-			<li><a href="{% url 'main:attempt_question' answer.id %}">{{answer.get_typed_question}}</a></li>
+	<table>
+		<tr>
+			<td>Sno</td>
+			<td>Question</td>
+			<td>Status</td>
+			{% if hint_col %}<td>Viewed hint</td>{% endif %}
+			<td>Marks</td>
+		</tr>
+		{% for answer in answer_list %}
+		<tr>
+			<td>{{forloop.counter}}</td>
+			<td>
+				<a href="{% url 'main:attempt_question' answer.id %}">
+				{{answer.get_typed_question}}
+				</a>
+			</td>
+			<td>{{answer.result_str}}</td>
+			{% if hint_col %}
+				<td>{% if answer.viewed_hint %}{{unicode_dict.check_box|safe}}{% endif %}</td>
+			{% endif %}
+			<td>{{answer.marks}}</td>
+		</tr>
 		{% endfor %}
-	</ol>
+		<tr>
+			<td></td>
+			<td>Total</td>
+			<td></td>
+			{% if hint_col %}
+				<td>{{sas.hints}}</td>
+			{% endif %}
+			<td>{{sas.marks}}</td>
+		</tr>
+	</table>
 {% endblock %}

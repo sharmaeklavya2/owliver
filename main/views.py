@@ -140,30 +140,41 @@ def eas_cover(request,eid):
 	timer_status = context_dict["timer_status"]
 
 	# Generate stats for result card
-	sas_set = list(eas.sectionanswersheet_set.all())
-	context_dict["sas_set"] = sas_set
-	eas.corr=0; eas.wrong=0; eas.att=0; eas.na=0;
-	eas.hints=0; eas.marks=0; eas.tot=0;
-	hint_col = False
-	for sas in sas_set:
-		if sas.section.allowed_attempts==0 and timer_status!=EAS.TIMER_ENDED:
-			sas.att, sas.na, sas.hints = sas.attempt_freq()
-			sas.corr = ""; sas.wrong = ""; sas.marks = "";
-		else:
-			sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
-			sas.att = sas.corr + sas.wrong
-		if sas.section.hint_deduction>0:
-			hint_col = True
-		sas.tot = sas.na + sas.att
-		attrs = ("corr","wrong","marks")
-		for attr in attrs:
-			if getattr(eas,attr)!="" and getattr(sas,attr)!="":
-				setattr(eas,attr,getattr(eas,attr)+getattr(sas,attr))
+	if timer_status == EAS.TIMER_ENDED or timer_status == EAS.TIMER_IN_PROGRESS:
+		sas_set = list(eas.sectionanswersheet_set.all())
+		context_dict["sas_set"] = sas_set
+		eas.corr=0; eas.wrong=0; eas.att=0; eas.na=0;
+		eas.hints=0; eas.marks=0; eas.tot=0; eas.max_marks=0;
+		hint_col = False
+		for sas in sas_set:
+			show_results = (sas.section.allowed_attempts!=0 or timer_status==EAS.TIMER_ENDED)
+			if show_results:
+				sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
+				sas.att = sas.corr + sas.wrong
 			else:
-				setattr(eas,attr,"")
-		attrs = ("att","na","hints","tot")
-		for attr in attrs:
-			setattr(eas,attr,getattr(eas,attr)+getattr(sas,attr))
+				sas.att, sas.na, sas.hints = sas.attempt_freq()
+				sas.corr = ""; sas.wrong = ""; sas.marks = "";
+			sas.tot = sas.na + sas.att
+			sas.max_marks = sas.tot * sas.section.correct_marks
+			if show_results:
+				sas.perc = 100*sas.marks/sas.max_marks
+			else:
+				sas.perc = ""
+			if sas.section.hint_deduction>0:
+				hint_col = True
+			attrs = ("corr","wrong","marks")
+			for attr in attrs:
+				if getattr(eas,attr)!="" and getattr(sas,attr)!="":
+					setattr(eas,attr,getattr(eas,attr)+getattr(sas,attr))
+				else:
+					setattr(eas,attr,"")
+			attrs = ("att","na","hints","tot","max_marks")
+			for attr in attrs:
+				setattr(eas,attr,getattr(eas,attr)+getattr(sas,attr))
+		if eas.marks!="":
+			eas.perc = 100*eas.marks/eas.max_marks
+		else:
+			eas.perc = ""
 		context_dict["hint_col"] = hint_col
 	return render(request,"eas_cover.html",context_dict)
 
@@ -192,11 +203,25 @@ def fill_dict_with_sas_values(context_dict,sas):
 	context_dict["prevsid"] = prevsid
 	context_dict["nextsid"] = nextsid
 
+def get_result_str_and_marks(section,result,viewed_hint,cstr="Correct",wstr="Wrong",nastr="Not attempted"):
+	if result==True:
+		result_str = cstr
+		marks = section.correct_marks
+	elif result==False:
+		result_str = wstr
+		marks = section.wrong_marks
+	else:
+		result_str = nastr
+		marks = section.na_marks
+	if viewed_hint:
+		marks-= section.hint_deduction
+	return (result_str,marks)
+
 @login_required
 def sas_cover(request,sid):
 	sid = int(sid)
 	sas = get_object_or_404(SectionAnswerSheet, id=sid)
-
+	section = sas.section
 	eas = sas.exam_answer_sheet
 	try:
 		context_dict = get_dict_with_eas_values(eas,request.user)
@@ -205,7 +230,36 @@ def sas_cover(request,sid):
 	if exam_not_started(context_dict["timer_status"]):
 		return base_response(request, exam_not_started_str)
 
-	sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
+	context_dict["hint_col"] = section.hint_deduction > 0
+	timer_status = context_dict["timer_status"]
+	show_results = (sas.section.allowed_attempts!=0 or timer_status==EAS.TIMER_ENDED)
+	context_dict["show_results"] = show_results
+
+	max_marks = section.max_marks()
+	context_dict["max_marks"] = max_marks
+	if show_results:
+		sas.corr, sas.wrong, sas.na, sas.hints, sas.marks = sas.result_freq()
+		sas.att = sas.corr + sas.wrong
+		sas.perc = 100*sas.marks/max_marks
+	else:
+		sas.att, sas.na, sas.hints = sas.attempt_freq()
+	sas.tot = sas.att + sas.na
+	answer_list = list(sas.answer_set.all())
+	for answer in answer_list:
+		answer.is_attable = answer.attempts < section.allowed_attempts
+		answer.marks=""
+		if show_results:
+			result = answer.result()
+			answer.res = result
+			answer.result_str,answer.marks = get_result_str_and_marks(section,result,answer.viewed_hint,nastr="NA")
+			answer.is_att = result!=None
+		else:
+			answer.is_att = answer.is_attempted()
+			if answer.is_att:
+				answer.result_str = "Attempted"
+			else:
+				answer.result_str = "NA"
+	context_dict["answer_list"] = answer_list
 	fill_dict_with_sas_values(context_dict, sas)
 	context_dict["unicode_dict"] = load_unicode.unicode_dict
 	return render(request,"sas_cover.html",context_dict)
@@ -213,24 +267,14 @@ def sas_cover(request,sid):
 def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 	context_dict["answer"] = answer
 	sas = answer.section_answer_sheet
-	section = sas.section
 	special_question = answer.get_typed_question()
 	special_answer = answer.get_special_answer()
 	question = special_question.question
 
 	if verbose:
 		result = special_answer.result()
-		if result==True:
-			context_dict["result_str"] = "Correct"
-			context_dict["marks"] = section.correct_marks
-		elif result==False:
-			context_dict["result_str"] = "Wrong"
-			context_dict["marks"] = section.wrong_marks
-		else:
-			context_dict["result_str"] = "Not attempted"
-			context_dict["marks"] = section.na_marks
-		if answer.viewed_hint:
-			context_dict["marks"]-= section.hint_deduction
+		returned_tuple = get_result_str_and_marks(sas.section,result,answer.viewed_hint)
+		context_dict["result_str"],context_dict["marks"] = returned_tuple
 
 	qset = sas.answer_set.filter(id__lt=answer.id)
 	# qset means queryset, qno means question number
