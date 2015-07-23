@@ -142,10 +142,10 @@ def add_section(exam_in_db,section_dict):
 
 from datetime import timedelta
 
-def add_exam(exam_dict,print_messages=False):
+def add_exam(exam_dict,print_messages=False,owner=None):
 	# add simple properties
 	simple_properties=["name","info","comment","author","postinfo","shuffle_sections"]
-	exam = Exam()
+	exam = Exam(owner=owner)
 	for key in exam_dict:
 		if key in simple_properties and hasattr(exam,key):
 			setattr(exam,key,exam_dict[key])
