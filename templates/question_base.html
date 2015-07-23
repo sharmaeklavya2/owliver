@@ -16,7 +16,7 @@
 
 <p>
 {% if prevaid %}
-<a href="{% url 'main:attempt_question' prevaid %}">Previous Question</a>
+<a href="{% url 'main:answer' prevaid %}">Previous Question</a>
 {% elif prevsid %}
 <a href="{% url 'main:sas_cover' prevsid %}">Previous Section</a>
 {% else %}
@@ -26,7 +26,7 @@ Previous Question
 
 <p>
 {% if nextaid %}
-<a href="{% url 'main:attempt_question' nextaid %}">Next Question</a>
+<a href="{% url 'main:answer' nextaid %}">Next Question</a>
 {% elif nextsid %}
 <a href="{% url 'main:sas_cover' nextsid %}">Next Section</a>
 {% else %}

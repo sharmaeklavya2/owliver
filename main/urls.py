@@ -17,8 +17,7 @@ urlpatterns = [
 	# attempting an exam
 	url(r'^eas_cover/(?P<eid>[0-9]+)/$', views.eas_cover, name='eas_cover'),
 	url(r'^sas_cover/(?P<sid>[0-9]+)/$', views.sas_cover, name='sas_cover'),
-	url(r'^attempt_ques/(?P<aid>[0-9]+)/$', views.attempt_question, name='attempt_question'),
-#	url(r'^review_ques/(?P<aid>[0-9]+)/$', views.review_question, name='review_question'),
+	url(r'^answer/(?P<aid>[0-9]+)/$', views.answer_view, name='answer'),
 	url(r'^submit/(?P<aid>[0-9]+)/$', views.submit, name='submit'),
 	url(r'^submit_eas/(?P<eid>[0-9]+)/$', views.submit_eas, name='submit_eas'),
 ]

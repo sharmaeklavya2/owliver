@@ -306,7 +306,7 @@ def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 	context_dict["special_answer"] = special_answer
 
 @login_required
-def attempt_question(request,aid):
+def answer_view(request,aid):
 	aid = int(aid)
 	answer = get_object_or_404(Answer, id=aid)
 	sas = answer.section_answer_sheet
@@ -396,7 +396,7 @@ def submit(request,aid):
 			nextaid = aid
 		else:
 			return HttpResponseRedirect(reverse("main:sas_cover",args=(nextsid,)))
-	return HttpResponseRedirect(reverse("main:attempt_question",args=(nextaid,)))
+	return HttpResponseRedirect(reverse("main:answer_view",args=(nextaid,)))
 
 @login_required
 def submit_eas(request,eid):
