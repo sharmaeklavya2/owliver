@@ -182,7 +182,7 @@ class Section(models.Model):
 		# if allowed_attempts is negative, student will have infinite attempts and attempt status will be shown after every submit
 		# if allowed_attempts is a positive integer n, student will have n attempts and attempt status will be shown after every submit
 	show_correct_answer = models.BooleanField("Should correct answer be shown after attempting a question?",default=False)
-		# if show_correct_answer is True and allowed_attempts is not 0,
+		# if show_correct_answer is True and allowed_attempts is not 0 or -1,
 		# student will be shown correct answer after exhausting all attempts
 	show_solution = models.BooleanField("Should solution be shown after attempting a question?",default=False)
 		# Similar to show_correct_answer
@@ -213,7 +213,11 @@ class Section(models.Model):
 	def number_of_questions(self):
 		return self.question_set.count()
 	def max_marks(self):
-		return self.correct_marks*self.question_set.count()
+		if self.max_questions_to_attempt==0:
+			ques = self.question_set.count()
+		else:
+			ques = min(self.max_questions_to_attempt, self.question_set.count())
+		return self.correct_marks * ques
 
 class Question(models.Model):
 	title = models.CharField(max_length=120,blank=True)
