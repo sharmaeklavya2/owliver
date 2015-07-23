@@ -1,0 +1,216 @@
+{
+	"name":"Cartoons test",
+	"info":"This test tests knowledge of old cartoons",
+	"time_limit":3600,
+	"sections":
+	[
+		{
+			"name":"Section 1",
+			"comment":"This should have been an mmatch",
+			"info":"This section contains questions which have exactly one correct answer. You can change your answer after submitting it but you can't see if it is correct or not.",
+			"marking_scheme":{"correct":3,"wrong":-1},
+			"shuffle":
+			{
+				"questions":true,
+				"options":true
+			},
+			"questions":
+			[
+				{
+					"title":"The Mystery Machine",
+					"text":"Which cartoon has 'The Mystery Machine'?",
+					"type":"mcq",
+					"options":
+					[
+						"Powerpuff Girls",
+						{"text":"Scooby Doo","is_correct":true},
+						"Courage the Cowardly Dog",
+						"Swat Cats"
+					]
+				},
+				{
+					"title":"Chemical X",
+					"text":"Which cartoon has 'Chemical X'?",
+					"type":"mcq",
+					"options":
+					[
+						{"text":"Powerpuff Girls","is_correct":true},
+						"Scooby Doo",
+						"Courage the Cowardly Dog",
+						"Swat Cats"
+					]
+				}
+			]
+		},
+		{
+			"name":"Section 2",
+			"info":"This section contains questions which have one or more correct answers. You have just 2 attempts to get the answer right. After that you will be shown the correct answer.",
+			"marking_scheme":{"correct":4},
+			"allowed_attempts":2,
+			"show_correct_answer":true,
+			"show_solution":true,
+			"shuffle":
+			{
+				"questions":true,
+				"options":true
+			},
+			"questions":
+			[
+				{
+					"title":"Dexter's lab characters",
+					"text":"Which of these characters are part of \"Dexter's Laboratory\"?",
+					"type":"mmcq",
+					"options":
+					[
+						"Bubbles",
+						{"text":"Mandark","is_correct":true},
+						"Muriel",
+						{"text":"Dee-Dee","is_correct":true}
+					]
+				},
+				{
+					"title":"TJ Directors",
+					"text":"Which of these people have directed Tom and Jerry?",
+					"type":"mmcq",
+					"options":
+					[
+						{"text":"Chuck Jones","is_correct":true},
+						{"text":"Fred Quimby","is_correct":true},
+						"Mel Blanc",
+						{"text":"Gene Deitch","is_correct":true}
+					]
+				}
+			]
+		},
+		{
+			"name":"Section 3",
+			"info":"This section contains text questions. You have infinite attempts to get the answer right.",
+			"marking_scheme":{"correct":3},
+			"allowed_attempts":-1,
+			"shuffle":{"questions":true},
+			"questions":
+			[
+				{
+					"title":"Heavenly Puss",
+					"text":"In Tom and Jerry's episode 'Heavenly Puss', which cartoon character plays the role of devil?",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"Spike"
+				},
+				{
+					"title":"Bulbasaur",
+					"text":"In pokemon, what does bulbasaur evolve into?",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"Vinasaur"
+				},
+				{
+					"title":"Talking Pokemon",
+					"text":"Some pokemons can talk like humans. Which of them was the first to be shown in the anime series?",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"Meowth"
+				},
+				{
+					"title":"Mickey's Pet",
+					"text":"Which character is usually depicted as mickey mouse's pet?",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"Pluto"
+				},
+				{
+					"title":"Looney Toons",
+					"text":"What is the name of the black duck in Looney Toons?",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"Daffy"
+				},
+				{
+					"title":"Bugs Bunny",
+					"text":"What is Bugs Bunny's signature line? (Take care of punctuation)",
+					"type":"text",
+					"ignore_case":true,
+					"answer":"What's up, doc?"
+				}
+			]
+		},
+		{
+			"name":"Section 4",
+			"comment":"This would have looked better as a match-the-following",
+			"info":"In this section, you have to tell the name of the antagonist of a show. You have 3 attempts to get the answer right. You will be shown the answers at the end of the exam. Questions are case-sensitive.",
+			"marking_scheme":{"correct":4},
+			"allowed_attempts":3,
+			"show_correct_answer":false,
+			"show_solution":false,
+			"shuffle":{"questions":true},
+			"questions":
+			[
+				{
+					"text":"He Man",
+					"type":"text",
+					"ignore_case":false,
+					"answer":"Skeletor"
+				},
+				{
+					"text":"The Roadrunner Show",
+					"type":"text",
+					"ignore_case":false,
+					"answer":"Wile E. Coyote"
+				},
+				{
+					"text":"Popeye",
+					"type":"regex",
+					"ignore_case":false,
+					"answer":"(Brutus)|(Bluto)"
+				},
+				{
+					"text":"Transformers",
+					"type":"text",
+					"ignore_case":false,
+					"answer":"Megatron"
+				}
+			]
+		},
+		{
+			"name":"Section 5",
+			"info":"This section contains questions which have one or more correct answers. You have just 2 attempts to get the answer right. After that you will be shown the correct answer.",
+			"marking_scheme":{"correct":4},
+			"allowed_attempts":2,
+			"show_correct_answer":true,
+			"show_solution":true,
+			"shuffle":
+			{
+				"questions":true,
+				"options":true
+			},
+			"unlock":{"questions":8},
+			"questions":
+			[
+				{
+					"title":"Dexter's lab characters",
+					"text":"Which of these characters are part of \"Dexter's Laboratory\"?",
+					"type":"mmcq",
+					"options":
+					[
+						"Bubbles",
+						{"text":"Mandark","is_correct":true},
+						"Muriel",
+						{"text":"Dee-Dee","is_correct":true}
+					]
+				},
+				{
+					"title":"TJ Directors",
+					"text":"Which of these people have directed Tom and Jerry?",
+					"type":"mmcq",
+					"options":
+					[
+						{"text":"Chuck Jones","is_correct":true},
+						{"text":"Fred Quimby","is_correct":true},
+						"Mel Blanc",
+						{"text":"Gene Deitch","is_correct":true}
+					]
+				}
+			]
+		}
+	]
+}
