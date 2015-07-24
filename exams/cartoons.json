@@ -44,46 +44,6 @@
 		},
 		{
 			"name":"Section 2",
-			"info":"This section contains questions which have one or more correct answers. You have just 2 attempts to get the answer right. After that you will be shown the correct answer.",
-			"marking_scheme":{"correct":4},
-			"allowed_attempts":2,
-			"show_correct_answer":true,
-			"show_solution":true,
-			"shuffle":
-			{
-				"questions":true,
-				"options":true
-			},
-			"questions":
-			[
-				{
-					"title":"Dexter's lab characters",
-					"text":"Which of these characters are part of \"Dexter's Laboratory\"?",
-					"type":"mmcq",
-					"options":
-					[
-						"Bubbles",
-						{"text":"Mandark","is_correct":true},
-						"Muriel",
-						{"text":"Dee-Dee","is_correct":true}
-					]
-				},
-				{
-					"title":"TJ Directors",
-					"text":"Which of these people have directed Tom and Jerry?",
-					"type":"mmcq",
-					"options":
-					[
-						{"text":"Chuck Jones","is_correct":true},
-						{"text":"Fred Quimby","is_correct":true},
-						"Mel Blanc",
-						{"text":"Gene Deitch","is_correct":true}
-					]
-				}
-			]
-		},
-		{
-			"name":"Section 3",
 			"info":"This section contains text questions. You have infinite attempts to get the answer right.",
 			"marking_scheme":{"correct":3},
 			"allowed_attempts":-1,
@@ -135,7 +95,7 @@
 			]
 		},
 		{
-			"name":"Section 4",
+			"name":"Section 3",
 			"comment":"This would have looked better as a match-the-following",
 			"info":"In this section, you have to tell the name of the antagonist of a show. You have 3 attempts to get the answer right. You will be shown the answers at the end of the exam. Questions are case-sensitive.",
 			"marking_scheme":{"correct":4},
@@ -172,7 +132,7 @@
 			]
 		},
 		{
-			"name":"Section 5",
+			"name":"Section 4",
 			"info":"This section contains questions which have one or more correct answers. You have just 2 attempts to get the answer right. After that you will be shown the correct answer.",
 			"marking_scheme":{"correct":4},
 			"allowed_attempts":2,
