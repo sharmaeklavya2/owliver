@@ -2,7 +2,9 @@
 
 {% block options_block %}
 	<p>Your answer: {{special_answer.response}}</p>
-	<p>Correct answer: {{special_question.correct_answer}}</p>
+	{% if show_correct_answer %}
+		<p>Correct answer: {{special_question.correct_answer}}</p>
+	{% endif %}
 	<p>Case-sensitive: {{case_sens}}</p>
 	{% if special_question.use_regex %}<p>Answer will be checked using Regular Expressions</p>{% endif %}
 {% endblock %}

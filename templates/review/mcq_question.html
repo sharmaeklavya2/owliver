@@ -6,7 +6,9 @@
 		<td>Sno.</td>
 		<td>Option</td>
 		<td>Your choice</td>
+		{% if show_correct_answer %}
 		<td>Correct choice</td>
+		{% endif %}
 	</tr>
 	{% for option in option_list %}
 	<tr>
@@ -21,6 +23,7 @@
 				{% endif %}
 			{% endif %}
 		</td>
+		{% if show_correct_answer %}
 		<td>
 			{% if option.is_correct %}
 				{% if special_question.multicorrect %}
@@ -30,6 +33,7 @@
 				{% endif %}
 			{% endif %}
 		</td>
+		{% endif %}
 	</tr>
 	{% endfor %}
 </table>

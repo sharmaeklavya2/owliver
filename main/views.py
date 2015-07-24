@@ -155,7 +155,7 @@ def eas_cover(request,eid):
 				sas.att, sas.na, sas.hints = sas.attempt_freq()
 				sas.corr = ""; sas.wrong = ""; sas.marks = "";
 			sas.tot = sas.na + sas.att
-			sas.max_marks = sas.tot * sas.section.correct_marks
+			sas.max_marks = sas.section.max_marks()
 			if show_results:
 				sas.perc = 100*sas.marks/sas.max_marks
 			else:
@@ -246,7 +246,7 @@ def sas_cover(request,sid):
 	sas.tot = sas.att + sas.na
 	answer_list = list(sas.answer_set.all())
 	for answer in answer_list:
-		answer.is_attable = answer.attempts < section.allowed_attempts
+		answer.is_attable = answer.is_attemptable()
 		answer.marks=""
 		if show_results:
 			result = answer.result()
@@ -275,6 +275,12 @@ def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 		result = special_answer.result()
 		returned_tuple = get_result_str_and_marks(sas.section,result,answer.viewed_hint)
 		context_dict["result_str"],context_dict["marks"] = returned_tuple
+
+	all_att = sas.section.allowed_attempts
+	if all_att==0:
+		context_dict["remaining_attempts"] = ""
+	else:
+		context_dict["remaining_attempts"] = all_att-answer.attempts
 
 	qset = sas.answer_set.filter(id__lt=answer.id)
 	# qset means queryset, qno means question number
@@ -320,7 +326,7 @@ def answer_view(request,aid):
 		return base_response(exam_not_started_str)
 	fill_dict_with_sas_values(context_dict,sas)
 	fill_dict_with_answer_values(context_dict,answer,verbose=True)
-	if timer_status==EAS.TIMER_IN_PROGRESS:
+	if timer_status==EAS.TIMER_IN_PROGRESS and answer.is_attemptable():
 		folder="attempt"
 	else:
 		folder="review"
@@ -328,6 +334,7 @@ def answer_view(request,aid):
 	qtype = context_dict["qtype"]
 	special_answer = context_dict["special_answer"]
 	special_question = context_dict["special_question"]
+	context_dict["show_correct_answer"] = (timer_status==EAS.TIMER_ENDED or not answer.is_attemptable())
 	if qtype=="text":
 		if special_question.ignore_case:
 			context_dict["case_sens"] = "No"
@@ -362,7 +369,8 @@ def submit(request,aid):
 		return base_response(request, exam_ended_str)
 	elif timer_status!=EAS.TIMER_IN_PROGRESS:
 		return base_response(request, exam_not_started_str)
-
+	elif not answer.is_attemptable():
+		return base_response(requst, "You don't have any more attempts left for this question.")
 	fill_dict_with_answer_values(context_dict,answer)
 
 	# save response to database
@@ -371,15 +379,21 @@ def submit(request,aid):
 	if qtype=="text":
 		if "response" not in request.POST:
 			raise InvalidFormData()
-		special_answer.response=request.POST["response"]
+		response = request.POST["response"]
+		special_answer.response = response
+		if response:
+			answer.attempts+=1
 	elif qtype=="mcq":
 		special_answer.chosen_options.clear()
 		chosen_option_ids = request.POST.getlist("response")
 		for option_id in chosen_option_ids:
 			link = McqAnswerToMcqOption(mcq_answer=special_answer,mcq_option_id=option_id)
 			link.save()
+		if chosen_option_ids:
+			answer.attempts+=1
 	else:
 		raise QuestionTypeNotImplemented(qtype)
+	answer.save()
 	special_answer.save()
 
 	# redirect
@@ -396,7 +410,7 @@ def submit(request,aid):
 			nextaid = aid
 		else:
 			return HttpResponseRedirect(reverse("main:sas_cover",args=(nextsid,)))
-	return HttpResponseRedirect(reverse("main:answer_view",args=(nextaid,)))
+	return HttpResponseRedirect(reverse("main:answer",args=(nextaid,)))
 
 @login_required
 def submit_eas(request,eid):

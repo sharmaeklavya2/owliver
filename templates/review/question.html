@@ -1,19 +1,35 @@
 {% extends 'question_base.html' %}
-
+{#<!--Assumptions: timer_status==EAS.TIMER_ENDED or (timer_status==EAS.TIMER_IN_PROGRESS and answer.attempts==sas.allowed_attempts) -->#}
 {% block question_block %}
-	<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+
+	{% if timer_status == EAS.TIMER_ENDED %}
+		<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+	{% else %}
+		<p>You have finished your attempts.</p>
+	{% endif %}
 
 	{% block options_block %}{% endblock %}
 
 	<p>Result: {{result_str}}</p>
 	<p>Marks obtained: {{marks}}</p>
 
-	{% if can_view_solution %}
-		{% if question.solution %}
-			<p>Solution:</p>
-			<div>{{question.solution}}</div>
-		{% else %}
-			<p>No solution available.</p>
+	{% if timer_status == EAS.TIMER_ENDED %}
+		{% if can_view_solution %}
+			{% if question.solution %}
+				<p>Solution:</p>
+				<div>{{question.solution}}</div>
+			{% else %}
+				<p>No solution available.</p>
+			{% endif %}
+		{% endif %}
+	{% else %}
+		{% if can_view_solution and section.show_solution %}
+			{% if question.solution %}
+				<p>Solution:</p>
+				<div>{{question.solution}}</div>
+			{% else %}
+				<p>No solution available.</p>
+			{% endif %}
 		{% endif %}
 	{% endif %}
 {% endblock %}

@@ -607,12 +607,14 @@ class McqAnswer(models.Model, SpecialAnswer):
 
 	def __str__(self):
 		return " ; ".join([option.option_text() for option in self.chosen_options.all()])
+	def is_attempted(self):
+		return self.chosen_options.exists()
 	def result(self):
 		if not self.chosen_options.exists():
 			return None
-		return not self.chosen_options.filter(is_correct=False).exists()
-	def is_attempted(self):
-		return self.chosen_options.exists()
+		corropts = self.special_question.mcqoption_set.filter(is_correct=True).count()
+		mycorropts = self.chosen_options.filter(is_correct=True).count()
+		return corropts == mycorropts
 
 	def verify_options(self):
 		# returns True if all options belong to this question and False otherwise

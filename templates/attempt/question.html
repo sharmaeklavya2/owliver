@@ -13,4 +13,13 @@
 			<input type="button" value="Submit and next question" disabled="true" />
 		{% endif %}
 	</form>
+
+	{% if remaining_attempts != "" %}
+		<p>Remaining attempts = {{remaining_attempts}}</p>
+	{% endif %}
+	{% if section.allowed_attempts != 0 %}
+		<p>Result: {{result_str}}</p>
+		<p>Marks obtained: {{marks}}</p>
+	{% endif %}
+
 {% endblock %}
