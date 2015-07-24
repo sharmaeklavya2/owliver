@@ -4,19 +4,21 @@
 
 {% block body_block %}
 	<p>Exam name: <a href="{% url 'main:eas_cover' eas.id %}">{{exam.name}}</a></p>
-	<p>Status: {{eas.get_timer_status_str}}</p>
-	{% if eas.start_time %}
-		<p>Start time: {{eas.start_time}}</p>
-	{% endif %}
-	{% if eas.end_time %}
-		<p>End time: {{eas.end_time}}</p>
-	{% endif %}
-	{% if elapsed_time %}
-		<p>Time elapsed: {{elapsed_time}}</p>
-	{% endif %}
-	{% if remaining_time %}
-		<p>Time remaining: {{remaining_time}}</p>
-	{% endif %}
+	<ul>
+		<li>Status: {{eas.get_timer_status_str}}</li>
+		{% if eas.start_time %}
+			<li>Start time: {{eas.start_time}}</li>
+		{% endif %}
+		{% if eas.end_time %}
+			<li>End time: {{eas.end_time}}</li>
+		{% endif %}
+		{% if elapsed_time %}
+			<li>Time elapsed: {{elapsed_time}}</li>
+		{% endif %}
+		{% if remaining_time %}
+			<li>Time remaining: {{remaining_time}}</li>
+		{% endif %}
+	</ul>
 	{% if timer_status == EAS.TIMER_NOT_SET %}
 	<form method="POST" action="{% url 'main:start_eas' eas.id %}">
 		{% csrf_token %}
@@ -30,15 +32,15 @@
 	</form>
 	{% endif %}
 
-	{% if can_view_solutions %}
-		<div>{{exam.postinfo}}</div>
-	{% endif %}
-	{% if timer_status == EAS.TIMER_ENDED %}
-		<p>Tags: {% for tag in exam.tags.all %}{{tag.name}}, {% endfor %}</p>
-	{% endif %}
 	<hr />
 	{% block eas_block %}
-		<div>{{exam.info}}</div>
+		<p>{{exam.info}}</p>
+		{% if timer_status == EAS.TIMER_ENDED %}
+			{% if can_view_solutions %}
+				<p>{{section.postinfo}}</p>
+			{% endif %}
+			<p>Tags: {% for tag in exam.tags.all %}{{tag.name}}, {% endfor %}</p>
+		{% endif %}
 		{% if timer_status == EAS.TIMER_ENDED or timer_status == EAS.TIMER_IN_PROGRESS %}
 		<table>
 			<tr>

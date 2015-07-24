@@ -14,12 +14,14 @@
 		{% endif %}
 	</form>
 
+	<p>
 	{% if remaining_attempts != "" %}
-		<p>Remaining attempts = {{remaining_attempts}}</p>
+		<div>Remaining attempts = {{remaining_attempts}}</div>
 	{% endif %}
 	{% if section.allowed_attempts != 0 %}
-		<p>Result: {{result_str}}</p>
-		<p>Marks obtained: {{marks}}</p>
+		<div>Result: {{result_str}}</div>
+		<div>Marks obtained: {{marks}}</div>
 	{% endif %}
+	</p>
 
 {% endblock %}

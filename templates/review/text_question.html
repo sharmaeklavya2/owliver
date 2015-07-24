@@ -1,9 +1,9 @@
 {% extends 'review/question.html' %}
 
 {% block options_block %}
-	<p>Your answer: {{special_answer.response}}</p>
+	<div>Your answer: {{special_answer.response}}</div>
 	{% if show_correct_answer %}
-		<p>Correct answer: {{special_question.correct_answer}}</p>
+		<div>Correct answer: {{special_question.correct_answer}}</div>
 	{% endif %}
 	<p>Case-sensitive: {{case_sens}}</p>
 	{% if special_question.use_regex %}<p>Answer will be checked using Regular Expressions</p>{% endif %}

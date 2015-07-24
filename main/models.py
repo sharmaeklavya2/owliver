@@ -150,16 +150,25 @@ class Section(models.Model):
 		return ms_dict
 
 	# unlock
-	unlock_marks = models.IntegerField("Minimum marks to attempt this section",default=0)
-	unlock_questions = models.PositiveIntegerField("Minimum attempted questions to attempt this section",default=0)
-	unlock_both_needed = models.BooleanField("Should both minimum question and minimum marks requirements be fulfilled?",default=False)
+	unlock_marks = models.IntegerField("Minimum marks to attempt this section",null=True)
+	unlock_questions = models.PositiveIntegerField("Minimum attempted questions to attempt this section",null=True)
+	unlock_both_needed = models.BooleanField("Should both minimum question and minimum marks requirements be fulfilled?",default=True)
 	def is_unlocked(self,marks,questions):
-		has_marks = self.unlock_marks<=marks
-		has_questions = self.unlock_questions<=questions
-		if self.unlock_both_needed:
-			return (has_marks and has_questions)
+		if self.unlock_questions!=None:
+			has_questions = self.unlock_questions<=questions
+			if self.unlock_marks!=None:
+				has_marks = self.unlock_marks<=marks
+				if self.unlock_both_needed:
+					return has_questions and has_marks
+				else:
+					return has_questions or has_marks
+			else:
+				return has_questions
 		else:
-			return (has_marks or has_questions)
+			if self.unlock_marks!=None:
+				return self.unlock_marks<=marks
+			else:
+				return True
 	def export_unlock(self):
 		unlock_dict = {}
 		if self.unlock_marks!=0: unlock_dict["marks"]=self.unlock_marks

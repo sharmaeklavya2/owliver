@@ -91,7 +91,7 @@ def make_eas(request,eid):
 		eas = add_anssheet.add_eas(exam,request.user)
 		if "start" in request.POST:
 			eas.set_timer()
-		return HttpResponseRedirect(reverse("main:eas_list"))
+		return HttpResponseRedirect(reverse("main:eas_cover",args=(eas.id,)))
 	else:
 		return base_response(request, "You do not have permission to attempt this exam.")
 
@@ -118,6 +118,9 @@ def get_dict_with_eas_values(eas,current_user):
 	timer_status = eas.get_timer_status()
 	context_dict["timer_status"] = timer_status
 	context_dict["EAS"] = EAS
+	result_freq = eas.result_freq()
+	context_dict["questions_attempted"] = result_freq[0]+result_freq[1]
+	context_dict["actual_marks"] = result_freq[4]
 	if timer_status==EAS.TIMER_IN_PROGRESS:
 		now = timezone.now()
 		context_dict["elapsed_time"] = now - eas.start_time
@@ -125,6 +128,7 @@ def get_dict_with_eas_values(eas,current_user):
 			context_dict["remaining_time"] = eas.end_time - now
 	exam = eas.exam
 	context_dict["exam"] = exam
+	context_dict["score_visible"] = not exam.section_set.filter(allowed_attempts=0).exists()
 	context_dict["can_view_solutions"] = (exam.can_view_solutions(current_user) and timer_status==EAS.TIMER_ENDED)
 	return context_dict
 
@@ -180,8 +184,14 @@ def eas_cover(request,eid):
 
 def fill_dict_with_sas_values(context_dict,sas):
 	context_dict["sas"] = sas
-	context_dict["section"] = sas.section
+	section = sas.section
+	context_dict["section"] = section
 	eas = sas.exam_answer_sheet
+
+	actual_marks = context_dict["actual_marks"]
+	questions_attempted = context_dict["questions_attempted"]
+	timer_status = context_dict["timer_status"]
+	context_dict["unlocked"] = timer_status==EAS.TIMER_ENDED or section.is_unlocked(actual_marks, questions_attempted)
 
 	qset = eas.sectionanswersheet_set.filter(id__lt=sas.id)
 	# qset means queryset
@@ -277,7 +287,7 @@ def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 		context_dict["result_str"],context_dict["marks"] = returned_tuple
 
 	all_att = sas.section.allowed_attempts
-	if all_att==0:
+	if all_att<=0:
 		context_dict["remaining_attempts"] = ""
 	else:
 		context_dict["remaining_attempts"] = all_att-answer.attempts
@@ -323,8 +333,12 @@ def answer_view(request,aid):
 		return base_response(request, InvalidUser.exp_str)
 	timer_status = context_dict["timer_status"]
 	if exam_not_started(timer_status):
-		return base_response(exam_not_started_str)
+		return base_response(request, exam_not_started_str)
 	fill_dict_with_sas_values(context_dict,sas)
+	unlocked = context_dict["unlocked"]
+	if not unlocked:
+		return base_response(request,"This section is locked")
+
 	fill_dict_with_answer_values(context_dict,answer,verbose=True)
 	if timer_status==EAS.TIMER_IN_PROGRESS and answer.is_attemptable():
 		folder="attempt"
@@ -371,6 +385,10 @@ def submit(request,aid):
 		return base_response(request, exam_not_started_str)
 	elif not answer.is_attemptable():
 		return base_response(requst, "You don't have any more attempts left for this question.")
+	fill_dict_with_sas_values(context_dict,sas)
+	unlocked = context_dict["unlocked"]
+	if not unlocked:
+		return base_response(request, "This section is locked")
 	fill_dict_with_answer_values(context_dict,answer)
 
 	# save response to database
@@ -404,7 +422,6 @@ def submit(request,aid):
 	else:
 		raise InvalidFormData()
 	if not nextaid:
-		fill_dict_with_sas_values(context_dict,sas)
 		nextsid = context_dict["nextsid"]
 		if not nextsid:
 			nextaid = aid
