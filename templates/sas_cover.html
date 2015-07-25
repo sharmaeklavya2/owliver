@@ -74,7 +74,7 @@
 			{% if can_view_solutions %}
 				<p>{{section.postinfo}}</p>
 			{% endif %}
-			<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+			<p>Tags: {% for tag in section.get_all_tags %}{{tag.name}}, {% endfor %}</p>
 		{% endif %}
 		<hr />
 		</div>

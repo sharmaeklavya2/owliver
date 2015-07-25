@@ -145,6 +145,8 @@ class Section(models.Model):
 		return self.exam.name+" : "+self.name
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
+	def get_all_tags(self):
+		return self.tags.all() | self.exam.tags.all()
 
 	# marking_scheme
 	correct_marks = models.IntegerField("Marks for correct answer",default=1)
@@ -279,6 +281,8 @@ class Question(models.Model):
 
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
+	def get_all_tags(self):
+		return self.tags.all() | self.section.tags.all() | self.section.exam.tags.all()
 	def export(self,include_solutions=True):
 		ques_dict = self.get_special_question().export()
 		if self.title: ques_dict["title"] = self.title

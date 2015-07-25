@@ -10,7 +10,7 @@
 	</p>
 
 	{% if timer_status == EAS.TIMER_ENDED %}
-		<p>Tags: {% for tag in section.tags.all %}{{tag.name}}, {% endfor %}</p>
+		<p>Tags: {% for tag in question.get_all_tags %}{{tag.name}}, {% endfor %}</p>
 	{% else %}
 		<p>You have finished your attempts.</p>
 	{% endif %}
