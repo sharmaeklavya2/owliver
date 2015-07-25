@@ -69,6 +69,8 @@ class Exam(models.Model):
 	time_limit = models.DurationField("Time limit to complete exam",default=timedelta(0))
 		# timedelta(0) means infinite time
 	shuffle_sections = models.BooleanField("Randomly shuffle sections",default=False)
+	can_attempt_again = models.BooleanField("Can a user attempt this exam multiple times",default=True)
+	# The owner and superuser can attempt as many times as they want
 	author = models.TextField(blank=True)
 	comment = models.TextField(blank=True)
 	postinfo = models.TextField(blank=True)
@@ -98,6 +100,7 @@ class Exam(models.Model):
 		if self.comment: exam_dict["comment"] = self.comment
 		if include_solutions and self.postinfo: exam_dict["postinfo"] = self.postinfo
 		if self.time_limit!=timedelta(0): exam_dict["time_limit"] = self.time_limit.total_seconds()
+		if not self.can_attempt_again: exam_dict["can_attempt_again"] = self.can_attempt_again
 		if self.shuffle_sections: exam_dict["shuffle_sections"] = self.shuffle_sections
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: exam_dict["tags"] = tags_list
@@ -106,7 +109,14 @@ class Exam(models.Model):
 		return exam_dict
 
 	def can_attempt(self,user):
-		return user.is_superuser or self.attempt_group==None or user.groups.filter(id=self.attempt_group.id).exists()
+		if user.is_superuser or user==self.owner:
+			return True
+		has_group_perm = self.attempt_group==None or user.groups.filter(id=self.attempt_group.id).exists()
+		if not has_group_perm:
+			return False
+		not_attempted_before = not self.examanswersheet_set.filter(user=user).exists()
+		return self.can_attempt_again or not_attempted_before
+
 	def can_view_solutions(self,user):
 		return user.is_superuser or self.solutions_group==None or user.groups.filter(id=self.solutions_group.id).exists()
 

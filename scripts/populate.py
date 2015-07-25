@@ -144,7 +144,7 @@ from datetime import timedelta
 
 def add_exam(exam_dict,print_messages=False,owner=None):
 	# add simple properties
-	simple_properties=["name","info","comment","author","postinfo","shuffle_sections"]
+	simple_properties=["name","info","comment","author","postinfo","shuffle_sections","can_attempt_again"]
 	exam = Exam(owner=owner)
 	for key in exam_dict:
 		if key in simple_properties and hasattr(exam,key):

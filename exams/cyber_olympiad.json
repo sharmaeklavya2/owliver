@@ -3,6 +3,7 @@
 	"info":"This exam tests knowlege of computers and IT.",
 	"author":"Eklavya Sharma",
 	"tags":["computers","IT"],
+	"can_attempt_again":false,
 	"shuffle_sections":true,
 	"time_limit":240,
 	"sections":

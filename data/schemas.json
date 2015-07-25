@@ -223,6 +223,10 @@
 			"postinfo":{"type":"string"},
 			"tags":{"$ref":"#/tag_list"},
 			"author":{"type":"string"},
+			"can_attempt_again":{"type":"boolean"},
+			"time_limit":
+			{"type":"number","minimum":0},
+			"shuffle_sections":{"type":"boolean"},
 			"sections":
 			{
 				"type":"array",
@@ -234,10 +238,7 @@
 						{"$ref":"#/section"}
 					]
 				}
-			},
-			"time_limit":
-			{"type":"number","minimum":0},
-			"shuffle_sections":{"type":"boolean"}
+			}
 		},
 		"required":["name"]
 	},
