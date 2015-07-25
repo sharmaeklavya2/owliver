@@ -20,6 +20,7 @@
 					"title":"The Mystery Machine",
 					"text":"Which cartoon has 'The Mystery Machine'?",
 					"type":"mcq",
+					"tags":["scooby_doo"],
 					"options":
 					[
 						"Powerpuff Girls",
@@ -32,6 +33,7 @@
 					"title":"Chemical X",
 					"text":"Which cartoon has 'Chemical X'?",
 					"type":"mcq",
+					"tags":["powerpuff_girls"],
 					"options":
 					[
 						{"text":"Powerpuff Girls","is_correct":true},
@@ -56,42 +58,48 @@
 					"text":"In Tom and Jerry's episode 'Heavenly Puss', which cartoon character plays the role of devil?",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"Spike"
+					"answer":"Spike",
+					"tags":["tom_and_jerry","heavenly_puss"]
 				},
 				{
 					"title":"Bulbasaur",
 					"text":"In pokemon, what does bulbasaur evolve into?",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"Vinasaur"
+					"answer":"Vinasaur",
+					"tags":["pokemon"]
 				},
 				{
 					"title":"Talking Pokemon",
 					"text":"Some pokemons can talk like humans. Which of them was the first to be shown in the anime series?",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"Meowth"
+					"answer":"Meowth",
+					"tags":["pokemon"]
 				},
 				{
 					"title":"Mickey's Pet",
 					"text":"Which character is usually depicted as mickey mouse's pet?",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"Pluto"
+					"answer":"Pluto",
+					"tags":["mickey_mouse","pluto","walt_disney"]
 				},
 				{
 					"title":"Looney Toons",
 					"text":"What is the name of the black duck in Looney Toons?",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"Daffy"
+					"answer":"Daffy",
+					"tags":["daffy","looney_toons"]
 				},
 				{
 					"title":"Bugs Bunny",
 					"text":"What is Bugs Bunny's signature line? (Take care of punctuation)",
 					"type":"text",
 					"ignore_case":true,
-					"answer":"What's up, doc?"
+					"answer":"What's up, doc?",
+					"tags":["bugs_bunny","looney_toons","signature"]
 				}
 			]
 		},
@@ -104,31 +112,36 @@
 			"show_correct_answer":false,
 			"show_solution":false,
 			"shuffle":{"questions":true},
+			"tags":["antagonist","villain"],
 			"questions":
 			[
 				{
 					"text":"He Man",
 					"type":"text",
 					"ignore_case":false,
-					"answer":"Skeletor"
+					"answer":"Skeletor",
+					"tags":["he_man","superhero","skeletor"]
 				},
 				{
 					"text":"The Roadrunner Show",
 					"type":"text",
 					"ignore_case":false,
-					"answer":"Wile E. Coyote"
+					"answer":"Wile E. Coyote",
+					"tags":["coyote","roadrunner","roadrunner_show"]
 				},
 				{
 					"text":"Popeye",
 					"type":"regex",
 					"ignore_case":false,
-					"answer":"(Brutus)|(Bluto)"
+					"answer":"(Brutus)|(Bluto)",
+					"tags":["popeye","brutus","bluto"]
 				},
 				{
 					"text":"Transformers",
 					"type":"text",
 					"ignore_case":false,
-					"answer":"Megatron"
+					"answer":"Megatron",
+					"tags":["transformers","megatron"]
 				}
 			]
 		},
@@ -151,6 +164,7 @@
 					"title":"Dexter's lab characters",
 					"text":"Which of these characters are part of \"Dexter's Laboratory\"?",
 					"type":"mmcq",
+					"tags":["dexter","deedee","mandark","dexters_laboratory"],
 					"options":
 					[
 						"Bubbles",
@@ -163,6 +177,7 @@
 					"title":"TJ Directors",
 					"text":"Which of these people have directed Tom and Jerry?",
 					"type":"mmcq",
+					"tags":["tom_and_jerry","chuck_jones","fred_quimby","gene_deitch","director"],
 					"options":
 					[
 						{"text":"Chuck Jones","is_correct":true},

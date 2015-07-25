@@ -29,10 +29,14 @@ def import_tags_from_file(filepath=DEFAULT_PATH):
 			name = parts[0]
 			desc = ""
 			if len(parts)==2:
-				desc = parts[1]
+				desc = parts[1].strip()
 			if not re.search(tag_pattern,name):
 				raise InvalidTagName(name)
-			tag = Tag(name=name,description=desc)
+			try:
+				tag = Tag.objects.get(name=name)
+			except Tag.DoesNotExist:
+				tag = Tag(name=name)
+			tag.description = desc
 			tag.save()
 
 if __name__=="__main__":
