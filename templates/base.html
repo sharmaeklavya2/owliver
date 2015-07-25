@@ -2,7 +2,13 @@
 {% load staticfiles %}
 <html>
 <head>
-	<title>{% block title_block %}{{base_title |default:"Owliver"}}{% endblock %}</title>
+	<title>{% block title_block %}
+		{% if base_title %}
+			{{base_title}}
+		{% else %}
+			{{PROJECT_NAME}}
+		{% endif %}
+	{% endblock %}</title>
 	<link rel="stylesheet" href="{% static 'base.css' %}" />
 	<style>
 	{% block style_block %}{% endblock %}

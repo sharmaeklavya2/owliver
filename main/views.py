@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -57,14 +58,14 @@ def base_response(request,body,title=None,h1=None):
 
 def public_exam_list(request):
 	context_dict = {"exam_list":Exam.objects.filter(owner__isnull=True)}
-	context_dict["base_title"] = "Owliver - Public Exams"
+	context_dict["base_title"] = settings.PROJECT_NAME+" - Public Exams"
 	context_dict["base_h1"] = "Public Exams"
 	return render(request,"exam_list.html",context_dict)
 
 def user_exam_list(request,username):
 	user = get_object_or_404(User,username=username)
 	context_dict = {"exam_list":Exam.objects.filter(owner=user)}
-	context_dict["base_title"] = "Owliver - {username}'s Exams".format(username=username)
+	context_dict["base_title"] = settings.PROJECT_NAME+" - {username}'s Exams".format(username=username)
 	context_dict["base_h1"] = "Exams owned by "+username
 	return render(request,"exam_list.html",context_dict)
 

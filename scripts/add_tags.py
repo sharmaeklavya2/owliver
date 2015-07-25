@@ -40,7 +40,7 @@ def import_tags_from_file(filepath=DEFAULT_PATH):
 			tag.save()
 
 if __name__=="__main__":
-	os.environ.setdefault('DJANGO_SETTINGS_MODULE','owliver.settings')
+	os.environ.setdefault('DJANGO_SETTINGS_MODULE','project_conf.settings')
 	print("Setting up Django ...")
 	import django
 	django.setup()

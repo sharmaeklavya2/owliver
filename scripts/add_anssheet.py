@@ -74,7 +74,7 @@ def add_eas(exam,user,shuffle_sections=None,shuffle_questions=None,shuffle_optio
 	return eas
 
 if __name__=="__main__":
-	os.environ.setdefault('DJANGO_SETTINGS_MODULE','owliver.settings')
+	os.environ.setdefault('DJANGO_SETTINGS_MODULE','project_conf.settings')
 	print("Setting up Django ...")
 	import django
 	django.setup()

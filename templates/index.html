@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block title_block %}Owliver - Welcome{% endblock %}
-{% block h1_block %}Welcome to Owliver{% endblock %}
+{% block title_block %}{{PROJECT_NAME}} - Welcome{% endblock %}
+{% block h1_block %}Welcome to {{PROJECT_NAME}}{% endblock %}
 
 {% block body_block %}
 	{% if user.is_authenticated %}
@@ -13,7 +13,7 @@
 		<p><a href="{% url 'accounts:login' %}">Login</a></p>
 		<p><a href="{% url 'accounts:register' %}">Register</a></p>
 	{% endif %}
-	<p><a href="{% url 'main:about' %}">About Owliver</a></p>
+	<p><a href="{% url 'main:about' %}">About {{PROJECT_NAME}}</a></p>
 	<hr />
 	{% if user.is_authenticated %}
 		<p><a href="{% url 'main:eas_list' %}">My Exams</a></p>

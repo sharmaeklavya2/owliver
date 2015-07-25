@@ -176,7 +176,7 @@ def main(*args):
 		add_exam(exam_dict,True)
 
 if __name__=="__main__":
-	os.environ.setdefault('DJANGO_SETTINGS_MODULE','owliver.settings')
+	os.environ.setdefault('DJANGO_SETTINGS_MODULE','project_conf.settings')
 	print("Setting up Django ...")
 	import django
 	django.setup()
