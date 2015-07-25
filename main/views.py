@@ -280,6 +280,8 @@ def fill_dict_with_answer_values(context_dict,answer,verbose=False):
 	special_question = answer.get_typed_question()
 	special_answer = answer.get_special_answer()
 	question = special_question.question
+	context_dict["is_attable"] = answer.is_attemptable()
+	context_dict["is_attable2"] = answer.is_attemptable2()
 
 	if verbose:
 		result = special_answer.result()
@@ -340,7 +342,7 @@ def answer_view(request,aid):
 		return base_response(request,"This section is locked")
 
 	fill_dict_with_answer_values(context_dict,answer,verbose=True)
-	if timer_status==EAS.TIMER_IN_PROGRESS and answer.is_attemptable():
+	if timer_status==EAS.TIMER_IN_PROGRESS and context_dict["is_attable"]:
 		folder="attempt"
 	else:
 		folder="review"
@@ -348,7 +350,7 @@ def answer_view(request,aid):
 	qtype = context_dict["qtype"]
 	special_answer = context_dict["special_answer"]
 	special_question = context_dict["special_question"]
-	context_dict["show_correct_answer"] = (timer_status==EAS.TIMER_ENDED or not answer.is_attemptable())
+	context_dict["show_correct_answer"] = (timer_status==EAS.TIMER_ENDED or not context_dict["is_attable"])
 	if qtype=="text":
 		if special_question.ignore_case:
 			context_dict["case_sens"] = "No"
@@ -383,13 +385,15 @@ def submit(request,aid):
 		return base_response(request, exam_ended_str)
 	elif timer_status!=EAS.TIMER_IN_PROGRESS:
 		return base_response(request, exam_not_started_str)
-	elif not answer.is_attemptable():
-		return base_response(requst, "You don't have any more attempts left for this question.")
 	fill_dict_with_sas_values(context_dict,sas)
+	fill_dict_with_answer_values(context_dict,answer)
+	if not context_dict["is_attable"]:
+		return base_response(request, "You don't have any more attempts left for this question.")
 	unlocked = context_dict["unlocked"]
 	if not unlocked:
 		return base_response(request, "This section is locked")
-	fill_dict_with_answer_values(context_dict,answer)
+	if not context_dict["is_attable2"]:
+		return base_response(request, "You cannot answer more questions from this section")
 
 	# save response to database
 	qtype = context_dict["qtype"]

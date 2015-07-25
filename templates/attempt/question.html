@@ -4,11 +4,15 @@
 	<form method="POST" action="{% url 'main:submit' answer.id %}" >
 		{% csrf_token %}
 		{% block input_block %}{% endblock %}
-		<input type="submit" name="submit" value="Submit" /><br />
+		{% if not is_attable2 %}<p>You cannot answer more questions from this section. Clear another answer if you want to answer this question.</p>{% endif %}
+		<input type="submit" name="submit" value="Submit"
+			{% if not is_attable2 %}disabled="disabled"{% endif %} /><br />
 		{% if nextaid %}
-			<input type="submit" name="submit_and_next" value="Submit and next question" />
+			<input type="submit" name="submit_and_next" value="Submit and next question"
+				{% if not is_attable2 %}disabled="disabled"{% endif %} />
 		{% elif nextsid %}
-			<input type="submit" name="submit_and_next" value="Submit and next section" />
+			<input type="submit" name="submit_and_next" value="Submit and next section" 
+				{% if not is_attable2 %}disabled="disabled"{% endif %} />
 		{% else %}
 			<input type="button" value="Submit and next question" disabled="true" />
 		{% endif %}

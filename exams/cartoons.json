@@ -47,6 +47,7 @@
 			"info":"This section contains text questions. You have infinite attempts to get the answer right.",
 			"marking_scheme":{"correct":3},
 			"allowed_attempts":-1,
+			"max_questions_to_attempt":5,
 			"shuffle":{"questions":true},
 			"questions":
 			[

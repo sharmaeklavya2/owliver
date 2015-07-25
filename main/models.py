@@ -503,6 +503,14 @@ class Answer(models.Model):
 		# whether attempts is less than allowed_attempts
 		allatt = self.section_answer_sheet.section.allowed_attempts
 		return allatt<=0 or self.attempts<allatt
+	def is_attemptable2(self):
+		# whether attempted questions in this section < max_questions_to_attempt
+		sas = self.section_answer_sheet
+		mqta = sas.section.max_questions_to_attempt
+		if mqta==0 or self.is_attempted():
+			return True
+		att_count = sas.attempt_freq()[0]
+		return att_count < mqta
 	def __str__(self):
 		return self.get_qtype()+" : "+str(self.get_special_answer())
 
