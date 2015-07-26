@@ -14,6 +14,7 @@ urlpatterns = [
 	url(r'^exam_cover/(?P<eid>[0-9]+)/$', views.exam_cover, name='exam_cover'),
 	url(r'^make_eas/(?P<eid>[0-9]+)/$', views.make_eas, name='make_eas'),
 	url(r'^start_eas/(?P<eid>[0-9]+)/$', views.start_eas, name='start_eas'),
+	url(r'^disown_exam/(?P<eid>[0-9]+)/$', views.disown_exam, name='disown_exam'),
 
 	# attempting an exam
 	url(r'^eas_cover/(?P<eid>[0-9]+)/$', views.eas_cover, name='eas_cover'),

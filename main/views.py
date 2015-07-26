@@ -83,6 +83,16 @@ def exam_cover(request,eid):
 		context_dict["can_attempt"] = exam.can_attempt(request.user)
 	return render(request,"exam_cover.html",context_dict)
 
+def disown_exam(request,eid):
+	if request.method!="POST":
+		raise Http404("This page is only accessible via POST")
+	exam = get_object_or_404(Exam,id=eid)
+	if exam.owner != request.user:
+		return base_response(request,InvalidUser.exp_str)
+	exam.owner = None
+	exam.save()
+	return HttpResponseRedirect(reverse('main:exam_cover',args=(eid,)))
+
 @login_required
 def make_eas(request,eid):
 	if request.method!="POST":

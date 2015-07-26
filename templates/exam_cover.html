@@ -19,6 +19,12 @@
 		{% else %}
 			<p>The exam's owner has not allowed you to attempt this exam.</p>
 		{% endif %}
+		{% if exam.owner == user %}
+			<form method="POST" action="{% url 'main:disown_exam' exam.id %}" onsubmit="return confirm('Once you give up ownership of the exam, you cannot get it back. Are you sure you want to do this?');" >
+				{% csrf_token %}
+				<input type="submit" name="submit" value="Disown Exam" />
+			</form>
+		{% endif %}
 	{% else %}
 		<p>You must be <a href="{% url 'accounts:login' %}?next={{request.path}}">logged in</a> to give this test</p>
 	{% endif %}
