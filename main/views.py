@@ -449,3 +449,9 @@ def submit_eas(request,eid):
 		eas.end_time = eas.start_time
 		eas.save()
 	return HttpResponseRedirect(reverse("main:eas_cover",args=(eas.id,)))
+
+def user_list(request):
+	user_list = list(User.objects.filter(exam__isnull=False))
+	context_dict = {"user_list": user_list}
+	print(user_list)
+	return render(request,"user_list.html",context_dict)

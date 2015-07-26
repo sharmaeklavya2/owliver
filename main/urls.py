@@ -8,6 +8,7 @@ urlpatterns = [
 
 	# viewing and manipulating exam lists
 	url(r'^public_exams/$', views.public_exam_list, name='public_exam_list'),
+	url(r'^user_list/$', views.user_list, name='user_list'),
 	url(r'^user_exams/(?P<username>\w+)/$', views.user_exam_list, name='user_exam_list'),
 	url(r'^eas_list/$', views.eas_list, name='eas_list'),
 	url(r'^exam_cover/(?P<eid>[0-9]+)/$', views.exam_cover, name='exam_cover'),

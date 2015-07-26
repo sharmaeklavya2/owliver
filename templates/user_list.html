@@ -1,0 +1,16 @@
+{% extends 'accounts/base.html' %}
+
+{% block title_block %}{{PROJECT_NAME}} - Users{% endblock %}
+{% block h1_block %}List of all users at {{PROJECT_NAME}} with exams{% endblock %}
+
+{% block body_block %}
+	{% if user_list %}
+		<ol>
+		{% for u in user_list %}
+			<li><a href="{% url 'main:user_exam_list' u.username %}">{{u.username}}</a></li>
+		{% endfor %}
+		</ol>
+	{% else %}
+		<p>There are no users which own exams</p>
+	{% endif %}
+{% endblock %}

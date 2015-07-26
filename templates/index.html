@@ -20,4 +20,5 @@
 		<p><a href="{% url 'main:user_exam_list' user.username %}">Exams owned by me</a></p>
 	{% endif %}
 	<p><a href="{% url 'main:public_exam_list' %}">Public Exams</a></p>
+	<p><a href="{% url 'main:user_list' %}">List of all exam owners</a></p>
 {% endblock %}
