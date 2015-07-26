@@ -8,6 +8,10 @@
 	<tr><td>Username:</td><td>{{puser.username}}</td></tr>
 	<tr><td>Name:</td><td>{{puser.get_full_name}}</td></tr>
 </table>
+{% if user.is_authenticated and user == puser %}
+	<p><a href="{% url 'accounts:edit_profile' %}">Edit profile</a></p>
+{% endif %}
+<p><a href="{% url 'accounts:user_list' %}">List of all users</a></p>
 {% if user.groups.exists %}
 	<p>These are the groups {{puser}} is in:</p>
 	<ol>

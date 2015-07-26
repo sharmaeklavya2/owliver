@@ -8,6 +8,7 @@ urlpatterns = [
 	url(r'^register/$', views.register, name='register'),
 	url(r'^account_info/$', views.account_info, name='account_info'),
 	url(r'^user/(?P<username>\w+)/$', views.public_profile, name='public_profile'),
+	url(r'^user_list/$', views.user_list, name='user_list'),
 	url(r'^edit_profile/$', views.edit_profile, name='edit_profile'),
 	url(r'^change_password/$', views.change_password, name='change_password'),
 ]

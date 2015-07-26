@@ -6,7 +6,7 @@
 
 {% block body_block %}
 	{% if user.is_authenticated %}
-		<p>Logged in as: {{user.username}}</p>
+		<p>Logged in as: <a href="{% url 'accounts:account_info' %}">{{user.username}}</a></p>
 		<p><a href="{% url 'accounts:logout' %}">Logout</a></p>
 	{% else %}
 		<p>You are not logged in.</p>

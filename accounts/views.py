@@ -8,6 +8,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import EditProfileForm
 
+def base_response(request,body,title=None,h1=None):
+	context_dict = {"base_body":body}
+	if title:
+		context_dict["base_title"] = title
+	if h1:
+		context_dict["base_h1"] = h1
+	return render(request, "accounts/base.html", context_dict)
+
 def login_view(request):
 	context_dict = {}
 	if request.method=="POST":
@@ -42,8 +50,7 @@ def logout_view(request):
 		logout(request)
 		return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
 	else:
-		context_dict = {"base_body":"You are already logged out"}
-		return render(request,"accounts/base.html",context_dict)
+		return base_response(request, "You are already logged out")
 
 def register(request):
 	context_dict = {}
@@ -85,13 +92,17 @@ def public_profile(request,username):
 
 @login_required
 def edit_profile(request):
+	context_dict = {}
 	if request.method=="POST":
 		form = EditProfileForm(request.POST,instance=request.user)
 		if form.is_valid():
 			form.save()
+			context_dict["ep_success"]="Profile changed successsfully"
+		else:
+			context_dict["ep_error"]="Invalid data received"
 	else:
 		form = EditProfileForm(instance=request.user)
-	context_dict = {"form":form}
+	context_dict["form"] = form
 	return render(request,"accounts/edit_profile.html",context_dict)
 
 @login_required
@@ -114,3 +125,6 @@ def change_password(request):
 			context_dict["cp_error"] = "You must fill out both fields"
 	return render(request,"accounts/change_password.html",context_dict)
 
+def user_list(request):
+	context_dict = {"user_list": list(User.objects.all())}
+	return render(request,"accounts/user_list.html",context_dict)
