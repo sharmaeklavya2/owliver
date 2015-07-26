@@ -11,6 +11,8 @@ myvenv/
 myvenv2/
 myvenv3/
 
+/project_conf/secret_key.txt
+
 # OS files
 *~
 Desktop.ini

@@ -14,8 +14,14 @@ LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$_nu@^oulpl25@7y$yoxqotale9zx2^znm)reu+nr%oqxp8-5k'
+# secret_key.txt is not versioned controlled (for use in production)
+# old_secret_key.txt is versioned controlled
+try:
+	with open(os.path.join(CONF_DIR,"secret_key.txt")) as _secret_key_file:
+		SECRET_KEY = _secret_key_file.read().strip()
+except FileNotFoundError:
+	with open(os.path.join(CONF_DIR,"old_secret_key.txt")) as _secret_key_file:
+		SECRET_KEY = _secret_key_file.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
