@@ -3,13 +3,32 @@
 {% block h1_block %}My Exams{% endblock %}
 
 {% block body_block %}
-	{% if eas_list %}
-		<ol>
-		{% for eas in eas_list %}
-			<li><a href="{% url 'main:eas_cover' eas.id %}">{{eas.exam.name}}</a></li>
-		{% endfor %}
-		</ol>
+	{% if eas_exist %}
+		{% if in_progress_list %}
+			<h3>Exams in progress:</h3>
+			<ol>
+			{% for eas in in_progress_list %}
+				<li><a href="{% url 'main:eas_cover' eas.id %}">{{eas.exam.name}}</a></li>
+			{% endfor %}
+			</ol>
+		{% endif %}
+		{% if not_started_list %}
+			<h3>Pending exams:</h3>
+			<ol>
+			{% for eas in not_started_list %}
+				<li><a href="{% url 'main:eas_cover' eas.id %}">{{eas.exam.name}}</a></li>
+			{% endfor %}
+			</ol>
+		{% endif %}
+		{% if ended_list %}
+			<h3>Finished exams:</h3>
+			<ol>
+			{% for eas in ended_list %}
+				<li><a href="{% url 'main:eas_cover' eas.id %}">{{eas.exam.name}}</a></li>
+			{% endfor %}
+			</ol>
+		{% endif %}
 	{% else %}
-		<p>You have no exams.</p>
+		<p>You have no exams here.</p>
 	{% endif %}
 {% endblock %}

@@ -4,26 +4,29 @@
 
 {% block eas_block %}
 	<p>
-	{% if prevsid %}
-		<a href="{% url 'main:sas_cover' prevsid %}">
-		Previous Section ({{prevsecname}})
-		</a>
-	{% else %}
-		Previous Section
-	{% endif %}
-	</p>
-	<p>
-	{% if nextsid %}
-		<a href="{% url 'main:sas_cover' nextsid %}">
-		Next Section ({{nextsecname}})
-		</a>
-	{% else %}
-		Next Section
-	{% endif %}
+		<div>
+		{% if prevsid %}
+			<a href="{% url 'main:sas_cover' prevsid %}">
+			Previous Section ({{prevsecname}})
+			</a>
+		{% else %}
+			Previous Section
+		{% endif %}
+		</div>
+		<div>
+		{% if nextsid %}
+			<a href="{% url 'main:sas_cover' nextsid %}">
+			Next Section ({{nextsecname}})
+			</a>
+		{% else %}
+			Next Section
+		{% endif %}
+		</div>
 	</p>
 
 	{% if unlocked %}
 		<p>{{section.info}}</p>
+		<p><a href="{% url 'main:answer' answer_list.0.id %}">Start attempting this section from first question</a></p>
 		<div style="display:inline-block;float:left;">
 			Marking Scheme:<br />
 			<table>
@@ -159,6 +162,7 @@
 		{% else %}
 			score at least {{section.unlock_marks}} marks
 		{% endif %}
+		to unlock it.
 		</p>
 	{% endif %}
 {% endblock %}

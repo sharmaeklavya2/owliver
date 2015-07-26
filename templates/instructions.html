@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title_block %}{{PROJECT_NAME}} - Instructions{% endblock %}
+{% block h1_block %}How to take a test on {{PROJECT_NAME}}{% endblock %}
+
+{% block body_block %}
+<p>For technical reasons, a test is called an exam on this site.</p>
+
+<p>To be able to attempt an exam, you must first <a href="{% url 'accounts:login' %}?next={{request.path}}">login</a>. If you don't have an account, you must <a href="{% url 'accounts:register' %}">register</a> for an account.</p>
+
+<p>There are 2 kinds of exams:</p>
+
+<ul>
+	<li>
+		<h3><a href="{% url 'main:user_list' %}">Private Exams</a></h3>
+		<p>These exams are uploaded and managed by users of this site. They can control who can give the exam, modify the exam, etc.</p>
+	</li>
+	<li>
+		<h3><a href="{% url 'main:public_exam_list' %}">Public Exams</a></h3>
+		<p>These exams are uploaded by users of this site. However they do not manage/control them and you are free to give them.</p>
+	</li>
+</ul>
+
+<p>To attempt an exam, you can click the <button>Start Exam</button> button. This will start the exam and take you to the cover page of the exam. You can also click on <button>Attempt Later</button>. You can later find the exam in
+{% if user.is_authenticated %}
+	'<a href="{% url 'main:eas_list' %}">My exams</a>'.
+{% else %}
+	'My exams'.
+{% endif %}
+</p>
+
+<p>If you close your browser window while an exam is in progress, your progress will not be lost. You can find the exam in 'My exams'.</p>
+
+<p>The exams that you have given in the past can also be found in 'My exams'.</p>
+{% endblock %}

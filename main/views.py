@@ -34,6 +34,9 @@ def about(request):
 def index(request):
 	return render(request,"index.html",{})
 
+def instructions(request):
+	return render(request,"instructions.html",{})
+
 exam_not_started_str = "This exam has not begun"
 exam_ended_str = "This exam has ended"
 
@@ -62,6 +65,12 @@ def public_exam_list(request):
 	context_dict["base_h1"] = "Public Exams"
 	return render(request,"exam_list.html",context_dict)
 
+def user_list(request):
+	user_list = list(User.objects.filter(exam__isnull=False))
+	context_dict = {"user_list": user_list}
+	print(user_list)
+	return render(request,"user_list.html",context_dict)
+
 def user_exam_list(request,username):
 	user = get_object_or_404(User,username=username)
 	context_dict = {"exam_list":Exam.objects.filter(owner=user)}
@@ -71,7 +80,22 @@ def user_exam_list(request,username):
 
 @login_required
 def eas_list(request):
-	context_dict = {"eas_list":request.user.examanswersheet_set.all()}
+	eas_list = list(request.user.examanswersheet_set.all())
+	context_dict = {"eas_exist": len(eas_list)>0}
+	in_progress_list = []
+	not_started_list = []
+	ended_list = []
+	for eas in eas_list:
+		timer_status = eas.get_timer_status()
+		if timer_status == EAS.TIMER_IN_PROGRESS:
+			in_progress_list.append(eas)
+		elif timer_status == EAS.TIMER_NOT_SET or timer_status == EAS.TIMER_NOT_STARTED:
+			not_started_list.append(eas)
+		elif timer_status == EAS.TIMER_ENDED:
+			ended_list.append(eas)
+	context_dict["in_progress_list"] = in_progress_list
+	context_dict["not_started_list"] = not_started_list
+	context_dict["ended_list"] = ended_list
 	return render(request,"eas_list.html",context_dict)
 
 def exam_cover(request,eid):
@@ -83,6 +107,7 @@ def exam_cover(request,eid):
 		context_dict["can_attempt"] = exam.can_attempt(request.user)
 	return render(request,"exam_cover.html",context_dict)
 
+@login_required
 def disown_exam(request,eid):
 	if request.method!="POST":
 		raise Http404("This page is only accessible via POST")
@@ -90,6 +115,9 @@ def disown_exam(request,eid):
 	if exam.owner != request.user:
 		return base_response(request,InvalidUser.exp_str)
 	exam.owner = None
+	exam.attempt_group = None
+	exam.solutions_group = None
+	exam.can_attempt_again = True
 	exam.save()
 	return HttpResponseRedirect(reverse('main:exam_cover',args=(eid,)))
 
@@ -153,6 +181,7 @@ def eas_cover(request,eid):
 		return base_response(request, InvalidUser.exp_str)
 	exam = context_dict["exam"]
 	timer_status = context_dict["timer_status"]
+	context_dict["show_end_button"] = timer_status==EAS.TIMER_IN_PROGRESS or (timer_status==EAS.TIMER_NOT_STARTED and eas.start_time!=eas.end_time) 
 
 	# Generate stats for result card
 	if timer_status == EAS.TIMER_ENDED or timer_status == EAS.TIMER_IN_PROGRESS:
@@ -459,9 +488,3 @@ def submit_eas(request,eid):
 		eas.end_time = eas.start_time
 		eas.save()
 	return HttpResponseRedirect(reverse("main:eas_cover",args=(eas.id,)))
-
-def user_list(request):
-	user_list = list(User.objects.filter(exam__isnull=False))
-	context_dict = {"user_list": user_list}
-	print(user_list)
-	return render(request,"user_list.html",context_dict)

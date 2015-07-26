@@ -9,31 +9,32 @@
 	{% if qno %}
 	<li>Question no: {{qno}}</li>
 	{% endif %}
-	{% if question.title %}
-	<li>Question title: {{question.title}}</li>
-	{% endif %}
+	<!--{% if question.title %}
+		<li>Question title: {{question.title}}</li>
+	{% endif %}-->
 </ul>
 
 <p>
-{% if prevaid %}
-<a href="{% url 'main:answer' prevaid %}">Previous Question</a>
-{% elif prevsid %}
-<a href="{% url 'main:sas_cover' prevsid %}">Previous Section</a>
-{% else %}
-Previous Question
-{% endif %}
-</p>
+	<div>
+	{% if prevaid %}
+	<a href="{% url 'main:answer' prevaid %}">Previous Question</a>
+	{% elif prevsid %}
+	<a href="{% url 'main:sas_cover' prevsid %}">Previous Section</a>
+	{% else %}
+	Previous Question
+	{% endif %}
+	</div>
 
-<p>
-{% if nextaid %}
-<a href="{% url 'main:answer' nextaid %}">Next Question</a>
-{% elif nextsid %}
-<a href="{% url 'main:sas_cover' nextsid %}">Next Section</a>
-{% else %}
-Next Question
-{% endif %}
+	<div>
+	{% if nextaid %}
+	<a href="{% url 'main:answer' nextaid %}">Next Question</a>
+	{% elif nextsid %}
+	<a href="{% url 'main:sas_cover' nextsid %}">Next Section</a>
+	{% else %}
+	Next Question
+	{% endif %}
+	</div>
 </p>
-
 <hr />
 
 <div>{{question.text}}</div>

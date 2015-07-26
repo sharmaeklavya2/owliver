@@ -14,6 +14,7 @@
 		<p><a href="{% url 'accounts:register' %}">Register</a></p>
 	{% endif %}
 	<p><a href="{% url 'main:about' %}">About {{PROJECT_NAME}}</a></p>
+	<p><a href="{% url 'main:instructions' %}">Instructions</a></p>
 	<hr />
 	{% if user.is_authenticated %}
 		<p><a href="{% url 'main:eas_list' %}">My Exams</a></p>

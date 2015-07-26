@@ -4,28 +4,28 @@
 
 {% block body_block %}
 	<p>Exam name: <a href="{% url 'main:eas_cover' eas.id %}">{{exam.name}}</a></p>
-	<ul>
-		<li>Status: {{eas.get_timer_status_str}}</li>
+	<table>
+		<tr><td>Status</td><td>{{eas.get_timer_status_str}}</td></tr>
 		{% if eas.start_time %}
-			<li>Start time: {{eas.start_time}}</li>
+			<tr><td>Start time</td><td>{{eas.start_time}}</td></tr>
 		{% endif %}
 		{% if eas.end_time %}
-			<li>End time: {{eas.end_time}}</li>
+			<tr><td>End time</td><td>{{eas.end_time}}</td></tr>
 		{% endif %}
 		{% if elapsed_time %}
-			<li>Time elapsed: {{elapsed_time}}</li>
+			<tr><td>Time elapsed</td><td>{{elapsed_time}}</td></tr>
 		{% endif %}
 		{% if remaining_time %}
-			<li>Time remaining: {{remaining_time}}</li>
+			<tr><td>Time remaining</td><td>{{remaining_time}}</td></tr>
 		{% endif %}
-	</ul>
+	</table>
 	{% if timer_status == EAS.TIMER_NOT_SET %}
 	<form method="POST" action="{% url 'main:start_eas' eas.id %}">
 		{% csrf_token %}
 		<input type="submit" name="submit" value="Start exam" />
 	</form>
 	{% endif %}
-	{% if timer_status == EAS.TIMER_IN_PROGRESS or timer_status == EAS.TIMER_NOT_STARTED %}
+	{% if show_end_button %}
 	<form method="POST" action="{% url 'main:submit_eas' eas.id %}" onsubmit="return confirm('Are you sure you want to end the exam?');">
 		{% csrf_token %}
 		<input type="submit" name="submit" value="End exam" />

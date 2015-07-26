@@ -5,6 +5,7 @@ urlpatterns = [
 	# about and index
 	url(r'^$', views.index, name='index'),
 	url(r'^about/$', views.about, name='about'),
+	url(r'^instructions/$', views.instructions, name='instructions'),
 
 	# viewing and manipulating exam lists
 	url(r'^public_exams/$', views.public_exam_list, name='public_exam_list'),
