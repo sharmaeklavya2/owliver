@@ -136,7 +136,7 @@ def validate_and_get_exam(abspath_to_exam):
 def main(argv):
 	"""
 	Tests all questions in the directory test_questions if there is no command line argument
-	Otherwise validates and displays an exam object given in the first command line argument
+	Otherwise validates and displays the exam json file given in the first command line argument
 	"""
 	if len(argv)==1:
 		print("Testing test_questions:")
