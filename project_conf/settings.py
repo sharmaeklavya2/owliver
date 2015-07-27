@@ -17,7 +17,7 @@ LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL
 # secret_key.txt is not versioned controlled (for use in production)
 # old_secret_key.txt is versioned controlled
 try:
-	with open(os.path.join(CONF_DIR,"secret_key.txt")) as _secret_key_file:
+	with open(os.path.join(CONF_DIR,"secret","secret_key.txt")) as _secret_key_file:
 		SECRET_KEY = _secret_key_file.read().strip()
 except FileNotFoundError:
 	with open(os.path.join(CONF_DIR,"old_secret_key.txt")) as _secret_key_file:
@@ -77,12 +77,28 @@ WSGI_APPLICATION = CONF_DIR_NAME+'.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
-	'default': {
+import json
+DATABASES = {}
+db_paths = [
+	os.path.join(CONF_DIR,"secret","postgresql.json"),
+	os.path.join(CONF_DIR,"secret","mysql.json"),
+]
+_db_file_found = False
+
+for _db_path in db_paths:
+	if not _db_file_found:
+		try:
+			with open(_db_path) as _db_setting_file:
+				DATABASES["default"] = json.load(_db_setting_file)
+				_db_file_found = True
+		except FileNotFoundError:
+			pass
+
+if not _db_file_found:
+	DATABASES["default"] = {
 		'ENGINE': 'django.db.backends.sqlite3',
 		'NAME': os.path.join(BASE_DIR, 'sqlite3.db'),
 	}
-}
 
 
 # Internationalization

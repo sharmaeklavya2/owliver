@@ -1,18 +1,19 @@
 *.pyc
 __pycache__/
+/README.html
+output.txt
+doc/*.html
+
+/TODO.txt
 *.db
 /media/*
 migrations/
-/README.html
-output.txt
-/TODO.txt
-secret.txt
 myvenv/
 myvenv2/
 myvenv3/
-doc/*.html
 
-/project_conf/secret_key.txt
+/project_conf/secret/
+secret.txt
 
 # OS files
 *~
