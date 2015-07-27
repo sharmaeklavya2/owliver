@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}{{PROJECT_NAME}} - 404{% endblock %}
+{% block h1_block %}404 - Not Found{% endblock %}
+
+{% block body_block %}
+<img src="{% static '404.jpg' %}">
+<div>
+	<p>The page you were looking for does not exist.</p>
+	<p>It could have been moved, deleted or you mistyped the URL.</p>
+</div>
+{% endblock %}
