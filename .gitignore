@@ -11,6 +11,7 @@ migrations/
 myvenv/
 myvenv2/
 myvenv3/
+/local_conf/
 
 /project_conf/secret/
 secret.txt

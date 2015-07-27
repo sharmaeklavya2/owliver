@@ -23,6 +23,7 @@ def get_python_version():
 	return ".".join([str(sys.version_info.major),str(sys.version_info.minor)])
 def get_django_version():
 	return django.get_version()[:4]
+#	return django.get_version()
 
 def about(request):
 	context_dict = {}

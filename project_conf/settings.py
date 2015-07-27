@@ -26,7 +26,13 @@ except FileNotFoundError:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import json
+try:
+	_hostnames_path = os.path.join(CONF_DIR, "secret", "hostnames.json")
+	with open(_hostnames_path) as _hostnames_file:
+		ALLOWED_HOSTS = json.load(_hostnames_file)
+except (FileNotFoundError,ValueError):
+	ALLOWED_HOSTS = ['localhost']
 
 # Application definition
 
@@ -91,7 +97,7 @@ for _db_path in db_paths:
 			with open(_db_path) as _db_setting_file:
 				DATABASES["default"] = json.load(_db_setting_file)
 				_db_file_found = True
-		except FileNotFoundError:
+		except (FileNotFoundError, ValueError):
 			pass
 
 if not _db_file_found:
