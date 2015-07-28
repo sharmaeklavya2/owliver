@@ -13,7 +13,8 @@ Using Python 3.4 and Django 1.8
 Owliver is written in python 3.4 and is not compatible with python 2
 
 You might need to replace `python` and `pip` in the following commands by something else if `python` and `pip` don't point to a python 3 executable and a package manager for it respectively.  
-If you're on a Debian-based system (like Ubuntu), use `python3` instead of `python` and `pip3` instead of `pip`.
+If you're on a Debian-based system (like Ubuntu), use `python3` instead of `python` and `pip3` instead of `pip`.  
+But I would recommend that you use [virtualenv](https://virtualenv.pypa.io/en/latest/) instead if you can.
 
 You should have these python 3 packages installed:
 

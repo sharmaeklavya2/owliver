@@ -4,6 +4,7 @@ __pycache__/
 output.txt
 doc/*.html
 
+/.env
 /TODO.txt
 *.db
 /media/*
