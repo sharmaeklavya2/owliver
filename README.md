@@ -23,7 +23,6 @@ You should have these python 3 packages installed:
 Now you must follow these steps to set up the project for use:
 
 * Open a terminal in the project's root directory
-* `python manage.py makemigrations main`
 * `python manage.py migrate`
 
 Now you should add exams to the database because user-uploadable exams are not yet supported.

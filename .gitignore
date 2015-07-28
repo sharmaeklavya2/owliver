@@ -7,7 +7,8 @@ doc/*.html
 /TODO.txt
 *.db
 /media/*
-migrations/
+/staticfiles/*
+venv/
 myvenv/
 myvenv2/
 myvenv3/
