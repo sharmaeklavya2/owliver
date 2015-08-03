@@ -1,20 +1,30 @@
 # Owliver
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sharmaeklavya2/owliver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-Owliver is an educational site to make and take tests.
+Owliver is an educational site to make and take tests. Sort of like BITSAT and JEE Main online.
 
 ### Created by
 Eklavya Sharma
 
 Using Python 3.4 and Django 1.8
 
+## Features
+
+* Many types of questions (mcq, text, integer, True/False and more)
+* Questions can be split across many sections
+* Shuffle questions, sections and question options in mcqs
+* User's data is not lost when browser window closes
+* Control marking scheme independently for each section
+* Set time limit if needed and control when users can start exam
+* Detailed report shown after (and sometimes during) exam
+* Bonus sections which unlock only after attempting a minimum number of questions or scoring min required marks
+* Ability to add hint and extra bonus for not viewing hint
+* Control when user can see answer and solution (after attempting that question or after finishing whole exam)
+* Export exams as JSON
+
 ## How to run it
 
-Owliver is written in python 3.4 and is not compatible with python 2
-
-You might need to replace `python` and `pip` in the following commands by something else if `python` and `pip` don't point to a python 3 executable and a package manager for it respectively.  
-If you're on a Debian-based system (like Ubuntu), use `python3` instead of `python` and `pip3` instead of `pip`.  
-But I would recommend that you use [virtualenv](https://virtualenv.pypa.io/en/latest/) instead if you can.
+Owliver is written in python 3.4 and is not compatible with python 2.
 
 You should have these python 3 packages installed:
 
