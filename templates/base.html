@@ -9,7 +9,11 @@
 			{{PROJECT_NAME}}
 		{% endif %}
 	{% endblock %}</title>
+	<link rel="stylesheet" href="{{settings.LIB_URLS.bootstrap_css}}" />
+	<script src="{{settings.LIB_URLS.jquery}}"></script>
+	<script src="{{settings.LIB_URLS.bootstrap_js}}"></script>
 	<link rel="stylesheet" href="{% static 'base.css' %}" />
+	<!--<script src="{{settings.LIB_URLS.mathjax}}?config=TeX-AMS-MML_HTMLorMML"></script>-->
 	<style>
 	{% block style_block %}{% endblock %}
 	</style>

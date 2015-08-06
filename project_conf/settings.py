@@ -26,13 +26,7 @@ except FileNotFoundError:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-import json
-try:
-	_hostnames_path = os.path.join(CONF_DIR, "secret", "hostnames.json")
-	with open(_hostnames_path) as _hostnames_file:
-		ALLOWED_HOSTS = json.load(_hostnames_file)
-except (FileNotFoundError,ValueError):
-	ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -122,7 +116,36 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
-STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'),)
+EXTSTATIC_DIR = os.path.join(BASE_DIR,'extstatic')
+STATICFILES_DIRS = (os.path.join(BASE_DIR,'static'), EXTSTATIC_DIR)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+# Link to external CSS and JS libraries
+
+LIB_URLS_WEB = {
+	"jquery": 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js',
+	"bootstrap_css": 'https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css',
+	"bootstrap_js": 'https://maxcdn.bootstrapcdn.com/bootstrap/latest/js/bootstrap.min.js',
+	"mathjax": 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+}
+
+LIB_URLS_LOCAL_SUFFIX = {
+	"jquery": 'jquery.min.js',
+	"bootstrap_css": 'bootstrap/css/bootstrap.css',
+	"bootstrap_js": 'bootstrap/js/bootstrap.js',
+	"mathjax": 'mathjax/MathJax.js',
+}
+
+LIB_URLS = {}
+
+for libname,fname in LIB_URLS_LOCAL_SUFFIX.items():
+	try:
+		_libfile = open(os.path.join(EXTSTATIC_DIR,fname))
+		_libfile.close()
+		LIB_URLS[libname] = STATIC_URL + fname
+	except FileNotFoundError:
+		LIB_URLS[libname] = LIB_URLS_WEB[libname]
+	if DEBUG:
+		print("{libname}:\t{liburl}".format(libname=libname,liburl=LIB_URLS[libname]))

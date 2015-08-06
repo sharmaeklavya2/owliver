@@ -44,6 +44,14 @@ Now test using django's development server
 
 * `python manage.py runserver`
 
+## Using libraries locally
+
+By default, The website will load JQuery, Bootstrap and MathJax from the internet when required. If you want it to use a local copy instead, you'll have to make a folder named 'extstatic' in the project's directory and place files in it (symlinks work as well).
+
+* JQuery will be loaded from 'extstatic/jquery.min.js'
+* Bootstrap's folder should be 'extstatic/bootstrap'
+* MathJax's folder should be 'extstatic/mathjax'
+
 ## Documentation
 
 Documentation for this site is in the doc folder in markdown. To generate HTML documentation, run `make docs` in the project's root directory. If you wish to contribute, make sure to read everything in doc.
