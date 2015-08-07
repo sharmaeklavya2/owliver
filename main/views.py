@@ -175,6 +175,7 @@ def get_dict_with_eas_values(eas,current_user):
 	context_dict["exam"] = exam
 	context_dict["score_visible"] = not exam.section_set.filter(allowed_attempts=0).exists()
 	context_dict["can_view_solutions"] = (exam.can_view_solutions(current_user) and timer_status==EAS.TIMER_ENDED)
+	context_dict["show_end_button"] = timer_status==EAS.TIMER_IN_PROGRESS or (timer_status==EAS.TIMER_NOT_STARTED and eas.start_time!=eas.end_time)
 	return context_dict
 
 @login_required
@@ -187,7 +188,6 @@ def eas_cover(request,eid):
 		return base_response(request, InvalidUser.exp_str)
 	exam = context_dict["exam"]
 	timer_status = context_dict["timer_status"]
-	context_dict["show_end_button"] = timer_status==EAS.TIMER_IN_PROGRESS or (timer_status==EAS.TIMER_NOT_STARTED and eas.start_time!=eas.end_time) 
 
 	# Generate stats for result card
 	if timer_status == EAS.TIMER_ENDED or timer_status == EAS.TIMER_IN_PROGRESS:
