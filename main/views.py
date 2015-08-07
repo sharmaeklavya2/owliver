@@ -171,6 +171,8 @@ def get_dict_with_eas_values(eas,current_user):
 		context_dict["elapsed_time"] = now - eas.start_time
 		if eas.end_time!=None:
 			context_dict["remaining_time"] = eas.end_time - now
+	if timer_status==EAS.TIMER_ENDED:
+		context_dict["elapsed_time"] = eas.end_time - eas.start_time
 	exam = eas.exam
 	context_dict["exam"] = exam
 	context_dict["score_visible"] = not exam.section_set.filter(allowed_attempts=0).exists()
