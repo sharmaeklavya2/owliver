@@ -29,7 +29,12 @@ def about(request):
 	context_dict = {}
 	context_dict["python_version"] = get_python_version()
 	context_dict["django_version"] = get_django_version()
-	context_dict["contributors"] = ["Eklavya Sharma"]
+	authors_list = []
+	authors_file = open(os.path.join(settings.BASE_DIR,"AUTHORS.txt"))
+	for line in authors_file:
+		authors_list.append(line.strip())
+	authors_file.close()
+	context_dict["contributors"] = authors_list
 	return render(request,"about.html",context_dict)
 
 def index(request):
