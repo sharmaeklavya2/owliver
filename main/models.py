@@ -63,6 +63,19 @@ def add_tag(obj,tagname):
 		elif UNKNOWN_TAG_ACTION=="error":
 			raise
 
+def aatdind(model_obj,attrname,mydict,key):
+	# Add attribute to dict if not default
+	attr = getattr(model_obj,attrname)
+	field = model_obj.__class__._meta.get_field(attrname)
+	field_def_val = model_obj.__class__._meta.get_field(attrname).default
+	if field_def_val==models.fields.NOT_PROVIDED:
+		if field.null:
+			field_def_val=None
+		elif type(attr)==str:
+			field_def_val=""
+	if attr!=field_def_val:
+		mydict[key] = attr
+
 class Exam(models.Model):
 	name = models.CharField(max_length=50,blank=False)
 	info = models.TextField(blank=True)
@@ -78,13 +91,13 @@ class Exam(models.Model):
 
 	# permissions
 	# The superuser has all permissions
-	owner = models.ForeignKey(User,null=True)
+	owner = models.ForeignKey(User,null=True,blank=True)
 	# the person who owns the Exam. He can make any changes to it.
 	# This exam will be listed on the owner's page
-	solutions_group = models.ForeignKey(Group, null=True, related_name="solexam_set")
+	solutions_group = models.ForeignKey(Group, null=True, blank=True, related_name="solexam_set")
 	# Group of users who are authorized to view solutions and postinfo after taking this test
 	# If it is null, anyone can see solutions after attempting test
-	attempt_group = models.ForeignKey(Group, null=True, related_name="attexam_set")
+	attempt_group = models.ForeignKey(Group, null=True, blank=True, related_name="attexam_set")
 	# Group of users who can make an eas of this exam themselves
 	# If it is null, anyone can make an eas of this exam themselves
 	# Anyone with an eas of this exam can attempt this exam
@@ -95,13 +108,13 @@ class Exam(models.Model):
 	def add_tag(self,tagname):
 		return add_tag(self,tagname)
 	def export(self,include_solutions=True):
-		exam_dict = {"name":self.name}
-		if self.info: exam_dict["info"] = self.info
-		if self.comment: exam_dict["comment"] = self.comment
-		if include_solutions and self.postinfo: exam_dict["postinfo"] = self.postinfo
+		exam_dict = {}
+		fields = ("name","info","comment","can_attempt_again","shuffle_sections")
+		if include_solutions:
+			fields+= ("postinfo",)
+		for field in fields:
+			aatdind(self,field,exam_dict,field)
 		if self.time_limit!=timedelta(0): exam_dict["time_limit"] = self.time_limit.total_seconds()
-		if not self.can_attempt_again: exam_dict["can_attempt_again"] = self.can_attempt_again
-		if self.shuffle_sections: exam_dict["shuffle_sections"] = self.shuffle_sections
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: exam_dict["tags"] = tags_list
 		sections_list = [section.export(include_solutions) for section in self.section_set.order_by('id')]
@@ -155,15 +168,15 @@ class Section(models.Model):
 	hint_deduction = models.IntegerField("Marks deducted for viewing hint",default=0)
 	def export_marking_scheme(self):
 		ms_dict = {}
-		if self.correct_marks!=1: ms_dict["correct"] = self.correct_marks
-		if self.wrong_marks!=0: ms_dict["wrong"] = self.wrong_marks
-		if self.na_marks!=0: ms_dict["na"] = self.na_marks
-		if self.hint_deduction!=0: ms_dict["hint_deduction"] = self.hint_deduction
+		attr_key_pairs = (("correct_marks","correct"), ("wrong_marks","wrong"),
+			("na_marks","na"), ("hint_deduction","hint_deduction"))
+		for attr,key in attr_key_pairs:
+			aatdind(self,attr,ms_dict,key)
 		return ms_dict
 
 	# unlock
-	unlock_marks = models.IntegerField("Minimum marks to attempt this section",null=True)
-	unlock_questions = models.PositiveIntegerField("Minimum attempted questions to attempt this section",null=True)
+	unlock_marks = models.IntegerField("Minimum marks to attempt this section",null=True,blank=True)
+	unlock_questions = models.PositiveIntegerField("Minimum attempted questions to attempt this section",null=True,blank=True)
 	unlock_both_needed = models.BooleanField("Should both minimum question and minimum marks requirements be fulfilled?",default=True)
 	def is_unlocked(self,marks,questions):
 		if self.unlock_questions!=None:
@@ -183,9 +196,9 @@ class Section(models.Model):
 				return True
 	def export_unlock(self):
 		unlock_dict = {}
-		if self.unlock_marks!=0: unlock_dict["marks"]=self.unlock_marks
-		if self.unlock_questions!=0: unlock_dict["questions"]=self.unlock_questions
-		if self.unlock_both_needed!=False: unlock_dict["both_needed"]=self.unlock_both_needed
+		keys = ("questions","marks","both_needed")
+		for key in keys:
+			aatdind(self,"unlock_"+key,unlock_dict,key)
 		return unlock_dict
 
 	# shuffle
@@ -193,8 +206,8 @@ class Section(models.Model):
 	shuffle_questions = models.BooleanField("Randomly shuffle questions",default=False)
 	def export_shuffle(self):
 		shuffle_dict = {}
-		if self.shuffle_questions: shuffle_dict["questions"] = self.shuffle_questions
-		if self.shuffle_options: shuffle_dict["options"] = self.shuffle_options
+		aatdind(self,"shuffle_questions",shuffle_dict,"questions")
+		aatdind(self,"shuffle_options",shuffle_dict,"options")
 		return shuffle_dict
 
 	# other restrictions
@@ -211,14 +224,12 @@ class Section(models.Model):
 		# if this value is 0, all questions can be attempted
 
 	def export(self,include_solutions=True):
-		sec_dict = {"name":self.name}
-		if self.info: sec_dict["info"] = self.info
-		if self.comment: sec_dict["comment"] = self.comment
-		if include_solutions and self.postinfo: sec_dict["postinfo"] = self.postinfo
-		if self.allowed_attempts!=0: sec_dict["allowed_attempts"] = self.allowed_attempts
-		if self.show_correct_answer!=False: sec_dict["show_correct_answer"] = self.show_correct_answer
-		if self.show_solution!=False: sec_dict["show_solution"] = self.show_solution
-		if self.max_questions_to_attempt!=0: sec_dict["max_questions_to_attempt"] = self.max_questions_to_attempt
+		sec_dict = {}
+		fields = ("name","info","comment","allowed_attempts","show_correct_answer","show_solution","max_questions_to_attempt")
+		if include_solutions:
+			fields+= ("postinfo",)
+		for field in fields:
+			aatdind(self,field,sec_dict,field)
 		tags_list = [tag.name for tag in self.tags.order_by('id')]
 		if tags_list: sec_dict["tags"] = tags_list
 		ms_dict = self.export_marking_scheme()
@@ -297,8 +308,8 @@ class Question(models.Model):
 class ExamAnswerSheet(models.Model):
 	exam = models.ForeignKey(Exam)
 	user = models.ForeignKey(User)
-	start_time = models.DateTimeField(null=True)
-	end_time = models.DateTimeField(null=True)
+	start_time = models.DateTimeField(null=True,blank=True)
+	end_time = models.DateTimeField(null=True,blank=True)
 
 	def __str__(self):
 		return str(self.user)+" : "+str(self.exam)
